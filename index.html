@@ -5,134 +5,160 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>@AndrewTVI | Links</title>
   <meta name="description" content="Hola. Todos mis links en un solo lugar." />
-  <meta name="theme-color" content="#6d28d9" />
+  <meta name="theme-color" content="#7c3aed" />
   <link rel="icon" href="favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg1:#6d28d9; /* purple-700 */
-      --bg2:#9333ea; /* purple-600 */
-      --card:#1f1f23; /* dark card */
-      --text:#f3f4f6; /* gray-100 */
-      --muted:#c7c9d1; /* soft */
-      --ring:#00000033;
-      --btn:#2b2b31;
-      --btnRing:#00000080;
-      --accent:#a78bfa; /* purple-300 */
+      --bg:#0b0c10;          /* page background */
+      --glass:#ffffff15;     /* glass card */
+      --glass-bd:#ffffff22;  /* glass border */
+      --fg:#e5e7eb;          /* text */
+      --muted:#c7cad4;       /* secondary */
+      --accent:#a78bfa;      /* purple */
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --radius-outer:28px;
+      --radius-inner:22px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family:Inter,ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color:var(--text);
-      background: radial-gradient(1200px 600px at 50% -10%, var(--bg2), var(--bg1));
-      display:flex; justify-content:center; padding:32px; overflow-x:hidden;
+      margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--fg);
+      background: radial-gradient(1200px 600px at 50% -10%, #7c3aed66, #0b0c10), #0b0c10;
+      display:flex; justify-content:center; padding:24px; overflow-x:hidden;
     }
-    .wrap{width:100%; max-width:720px}
-    .panel{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.08); border-radius:28px; padding:28px; box-shadow:0 20px 40px var(--ring);
-    }
-    header{display:grid; place-items:center; gap:10px; padding:10px 0 18px}
-    .avatar{width:96px; height:96px; border-radius:999px; object-fit:cover; border:3px solid rgba(255,255,255,.2)}
-    .handle{font-weight:800; font-size:28px}
-    .desc{color:var(--muted); margin-top:-6px}
 
-    .list{display:grid; gap:16px; margin:18px 0 10px}
-    .item{
-      background: var(--btn);
-      border:1.5px solid rgba(255,255,255,.12);
-      border-radius:22px; padding:14px 16px; text-decoration:none; color:var(--text);
-      display:flex; align-items:center; gap:14px; box-shadow: 0 8px 0 #00000055; position:relative;
-      transition: transform .08s ease, box-shadow .08s ease, background .2s ease;
-    }
-    .item:hover{ transform: translateY(-2px); box-shadow: 0 12px 0 #00000044 }
-    .item:active{ transform: translateY(0); box-shadow: 0 6px 0 #00000066 }
-    .icon{width:44px; height:44px; border-radius:12px; display:grid; place-items:center; background:#101014; border:2px solid rgba(255,255,255,.14)}
-    .label{font-weight:700; letter-spacing:.2px}
-    .kebab{margin-left:auto; opacity:.7}
+    /* Frame */
+    .frame{width:100%; max-width:880px; background:linear-gradient(180deg,#7c3aed33,#00000011), linear-gradient(180deg,#1a1b21,#17171d); border:1px solid var(--glass-bd); border-radius:var(--radius-outer); box-shadow:var(--shadow); padding:18px}
 
-    .footer{margin-top:16px; text-align:center; color:var(--muted); font-size:12px}
-    .row{display:flex; align-items:center; justify-content:space-between}
-    .chip{background:#ffffff10; color:var(--text); padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.14)}
-    .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
-    .topbtn{width:40px; height:40px; display:grid; place-items:center; background:#ffffff10; border:1px solid rgba(255,255,255,.14); border-radius:12px}
-    small{font-size:12px}
+    /* COVER */
+    .cover{
+      position:relative; border-radius:20px; overflow:hidden; height:min(44vw,260px); background:#262633; display:flex; align-items:flex-end
+    }
+    .cover img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+    .cover::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 55%, rgba(0,0,0,.55));}
+
+    /* Header */
+    header{position:relative; margin-top:-52px; text-align:center}
+    .avatar{width:96px; height:96px; border-radius:999px; object-fit:cover; border:3px solid rgba(255,255,255,.6); box-shadow:0 10px 30px rgba(0,0,0,.5)}
+    .name{font-weight:800; font-size:28px; margin:12px 0 2px}
+    .handle{color:var(--muted); margin-bottom:10px}
+
+    /* Social icon row */
+    .social{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:12px 0 20px}
+    .sbtn{width:44px; height:44px; border-radius:999px; display:grid; place-items:center; background:var(--glass); border:1px solid var(--glass-bd); text-decoration:none; color:var(--fg); backdrop-filter: blur(8px); transition:transform .08s ease, background .2s}
+    .sbtn:hover{transform:translateY(-2px); background:#ffffff22}
+
+    /* Grid cards */
+    .grid{display:grid; grid-template-columns:1fr; gap:16px}
+    @media(min-width:720px){ .grid{grid-template-columns:1fr 1fr} }
+
+    .card{
+      position:relative; overflow:hidden; border-radius:18px; background:#1f2027; border:1px solid var(--glass-bd); min-height:150px; box-shadow:0 12px 26px rgba(0,0,0,.35)
+    }
+    .card img.bg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: saturate(1.05) contrast(1.05);}
+    .card::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.00), rgba(0,0,0,.55));}
+    .card .label{position:absolute; left:16px; bottom:14px; font-weight:800; font-size:20px; letter-spacing:.2px}
+    .card .icon{position:absolute; right:14px; top:12px; width:44px; height:44px; display:grid; place-items:center; border-radius:999px; background:#00000088; border:1px solid #ffffff44}
+    .card a{position:absolute; inset:0; display:block}
+
+    footer{margin:18px 6px 4px; text-align:center; color:var(--muted); font-size:12px}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="panel">
-      <div class="topbar">
-        <div class="topbtn" title="Ajustes">*</div>
-        <div class="topbtn" title="Compartir">⇪</div>
-      </div>
-      <header>
-        <img src="avatar.jpg" alt="Foto de perfil" class="avatar" />
-        <div class="handle">@AndrewTVI</div>
-        <div class="desc">Hola</div>
-      </header>
-
-      <section class="list">
-        <!-- 1. Directos (Twitch) -->
-        <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener">
-          <span class="icon">🎮</span>
-          <span class="label">Directos</span>
-          <span class="kebab">⋮</span>
-        </a>
-        <!-- 2. EL CORRALON (Discord/Comunidad) -->
-        <a class="item" href="https://discord.com/invite/fCCrFsg4fB" target="_blank" rel="noopener">
-          <span class="icon">🗨️</span>
-          <span class="label"><em>EL CORRALON</em> ↗</span>
-          <span class="kebab">⋮</span>
-        </a>
-        <!-- 3. Intento de youtuber (YouTube) -->
-        <a class="item" href="https://www.youtube.com/@ElAndrewTVI" target="_blank" rel="noopener">
-          <span class="icon">▶️</span>
-          <span class="label">Intento de youtuber</span>
-          <span class="kebab">⋮</span>
-        </a>
-        <!-- 4. X (Twitter) -->
-        <a class="item" href="https://x.com/iandres_soto" target="_blank" rel="noopener">
-          <span class="icon">✖️</span>
-          <span class="label">X (Twitter)</span>
-          <span class="kebab">⋮</span>
-        </a>
-        <!-- 5. TikTok -->
-        <a class="item" href="https://www.tiktok.com/@andrewtvi" target="_blank" rel="noopener">
-          <span class="icon">🎵</span>
-          <span class="label">TikTok</span>
-          <span class="kebab">⋮</span>
-        </a>
-        <!-- 6. KICK -->
-        <a class="item" href="https://kick.com/andrewtvi" target="_blank" rel="noopener">
-          <span class="icon">🟩</span>
-          <span class="label">KICK</span>
-          <span class="kebab">⋮</span>
-        </a>
-        <!-- 7. Perfil de minecraft -->
-        <a class="item" href="https://laby.net/@AndrewTVI" target="_blank" rel="noopener">
-          <span class="icon">🧊</span>
-          <span class="label">Perfil de minecraft</span>
-          <span class="kebab">⋮</span>
-        </a>
-        <!-- 8. ATVICRAFT -->
-        <a class="item" href="https://linktr.ee/ATVICRAFT" target="_blank" rel="noopener">
-          <span class="icon">🌐</span>
-          <span class="label">ATVICRAFT</span>
-          <span class="kebab">⋮</span>
-        </a>
-        $1
-        <!-- 10. Instagram -->
-        <a class=\"item\" href=\"https://www.instagram.com/andrewtvi\" target=\"_blank\" rel=\"noopener\">
-          <span class=\"icon\">📸</span>
-          <span class=\"label\">Instagram</span>
-          <span class=\"kebab\">⋮</span>
-        </a>
-      </section>
-
-      <div class="footer">© <span id="y"></span> AndrewTV • Hecho con GitHub Pages</div>
+  <div class="frame">
+    <!-- Cover banner (usa cover.jpg) -->
+    <div class="cover">
+      <img src="cover.jpg" alt="Cover" onerror="this.style.display='none'">
     </div>
+
+    <header>
+      <img src="avatar.jpg" alt="Avatar" class="avatar" />
+      <div class="name">AndrewTVI</div>
+      <div class="handle">Hola</div>
+      <div class="social">
+        <a class="sbtn" href="https://www.twitch.tv/andrewtvi" target="_blank" aria-label="Twitch">🎮</a>
+        <a class="sbtn" href="https://discord.com/invite/fCCrFsg4fB" target="_blank" aria-label="Discord">💬</a>
+        <a class="sbtn" href="https://www.youtube.com/@ElAndrewTVI" target="_blank" aria-label="YouTube">▶️</a>
+        <a class="sbtn" href="https://x.com/iandres_soto" target="_blank" aria-label="X">✖️</a>
+        <a class="sbtn" href="https://www.tiktok.com/@andrewtvi" target="_blank" aria-label="TikTok">🎵</a>
+        <a class="sbtn" href="https://kick.com/andrewtvi" target="_blank" aria-label="Kick">🟩</a>
+        <a class="sbtn" href="https://laby.net/@AndrewTVI" target="_blank" aria-label="Minecraft">🧊</a>
+        <a class="sbtn" href="https://linktr.ee/ATVICRAFT" target="_blank" aria-label="ATVICRAFT">🌐</a>
+        <a class="sbtn" href="https://www.instagram.com/andrewtvi" target="_blank" aria-label="Instagram">📸</a>
+      </div>
+    </header>
+
+    <!-- Big image link cards (backgrounds opcionales) -->
+    <section class="grid">
+      <div class="card">
+        <img class="bg" src="card-directos.jpg" alt="Directos" onerror="this.style.display='none'">
+        <div class="icon">🎮</div>
+        <div class="label">Directos</div>
+        <a href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-corralon.jpg" alt="El Corralón" onerror="this.style.display='none'">
+        <div class="icon">💬</div>
+        <div class="label">EL CORRALON</div>
+        <a href="https://discord.com/invite/fCCrFsg4fB" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-youtube.jpg" alt="YouTube" onerror="this.style.display='none'">
+        <div class="icon">▶️</div>
+        <div class="label">Intento de youtuber</div>
+        <a href="https://www.youtube.com/@ElAndrewTVI" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-x.jpg" alt="X" onerror="this.style.display='none'">
+        <div class="icon">✖️</div>
+        <div class="label">X (Twitter)</div>
+        <a href="https://x.com/iandres_soto" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-tiktok.jpg" alt="TikTok" onerror="this.style.display='none'">
+        <div class="icon">🎵</div>
+        <div class="label">TikTok</div>
+        <a href="https://www.tiktok.com/@andrewtvi" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-kick.jpg" alt="Kick" onerror="this.style.display='none'">
+        <div class="icon">🟩</div>
+        <div class="label">KICK</div>
+        <a href="https://kick.com/andrewtvi" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-mc.jpg" alt="Minecraft" onerror="this.style.display='none'">
+        <div class="icon">🧊</div>
+        <div class="label">Perfil de Minecraft</div>
+        <a href="https://laby.net/@AndrewTVI" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-atvicraft.jpg" alt="ATVICRAFT" onerror="this.style.display='none'">
+        <div class="icon">🌐</div>
+        <div class="label">ATVICRAFT</div>
+        <a href="https://linktr.ee/ATVICRAFT" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card">
+        <img class="bg" src="card-ig.jpg" alt="Instagram" onerror="this.style.display='none'">
+        <div class="icon">📸</div>
+        <div class="label">Instagram</div>
+        <a href="https://www.instagram.com/andrewtvi" target="_blank" rel="noopener"></a>
+      </div>
+    </section>
+
+    <footer>© <span id="y"></span> AndrewTV • Hecho con GitHub Pages</footer>
   </div>
+
   <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
 </body>
 </html>
