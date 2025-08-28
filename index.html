@@ -4,161 +4,175 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>@AndrewTVI | Links</title>
-  <meta name="description" content="Hola. Todos mis links en un solo lugar." />
-  <meta name="theme-color" content="#7c3aed" />
+  <meta name="description" content="Links y posts recientes." />
+  <meta name="theme-color" content="#bfa585" />
   <link rel="icon" href="favicon.ico" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#0b0c10;          /* page background */
-      --glass:#ffffff15;     /* glass card */
-      --glass-bd:#ffffff22;  /* glass border */
-      --fg:#e5e7eb;          /* text */
-      --muted:#c7cad4;       /* secondary */
-      --accent:#a78bfa;      /* purple */
-      --shadow: 0 20px 60px rgba(0,0,0,.45);
-      --radius-outer:28px;
-      --radius-inner:22px;
+      --bg:#0c0b0a;               /* fondo página */
+      --sand:#1a1714;             /* contenedor */
+      --glass:#ffffff14;          /* vidrio */
+      --glass-bd:#ffffff24;       /* borde vidrio */
+      --fg:#e9e9ea;               /* texto */
+      --muted:#bebfbe;            /* secundario */
+      --accent:#d8c2a6;           /* acento arena */
+      --chip:#ffffff10;
+      --radius:22px;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      color:var(--fg);
-      background: radial-gradient(1200px 600px at 50% -10%, #7c3aed66, #0b0c10), #0b0c10;
-      display:flex; justify-content:center; padding:24px; overflow-x:hidden;
-    }
+    body{margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--fg);
+      background: radial-gradient(1000px 560px at 50% -10%, #8b735533, #0000), linear-gradient(180deg,#0f0e0d,#0b0a09); display:flex; justify-content:center; padding:20px}
 
     /* Frame */
-    .frame{width:100%; max-width:880px; background:linear-gradient(180deg,#7c3aed33,#00000011), linear-gradient(180deg,#1a1b21,#17171d); border:1px solid var(--glass-bd); border-radius:var(--radius-outer); box-shadow:var(--shadow); padding:18px}
+    .phone{width:100%; max-width:840px; background:linear-gradient(180deg,#1b1916,#151310); border:1px solid var(--glass-bd); border-radius:28px; box-shadow:var(--shadow); overflow:hidden}
 
-    /* COVER */
-    .cover{
-      position:relative; border-radius:20px; overflow:hidden; height:min(44vw,260px); background:#262633; display:flex; align-items:flex-end
-    }
+    /* Header cover */
+    .cover{position:relative; height:min(42vw,240px); background:#292521}
     .cover img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
-    .cover::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 55%, rgba(0,0,0,.55));}
+    .cover::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 58%, rgba(0,0,0,.6));}
 
-    /* Header */
-    header{position:relative; margin-top:-52px; text-align:center}
-    .avatar{width:96px; height:96px; border-radius:999px; object-fit:cover; border:3px solid rgba(255,255,255,.6); box-shadow:0 10px 30px rgba(0,0,0,.5)}
-    .name{font-weight:800; font-size:28px; margin:12px 0 2px}
-    .handle{color:var(--muted); margin-bottom:10px}
+    header{text-align:center; margin-top:-48px; padding:0 18px 6px}
+    .avatar{width:92px; height:92px; border-radius:999px; object-fit:cover; border:3px solid rgba(255,255,255,.7); box-shadow:0 10px 26px rgba(0,0,0,.55)}
+    .name{font-weight:800; font-size:26px; margin:10px 0 2px}
+    .handle{color:var(--muted); font-weight:600}
 
-    /* Social icon row */
-    .social{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:12px 0 20px}
-    .sbtn{width:44px; height:44px; border-radius:999px; display:grid; place-items:center; background:var(--glass); border:1px solid var(--glass-bd); text-decoration:none; color:var(--fg); backdrop-filter: blur(8px); transition:transform .08s ease, background .2s}
-    .sbtn:hover{transform:translateY(-2px); background:#ffffff22}
+    /* Tabs */
+    .tabs{display:flex; gap:8px; padding:14px 14px 0}
+    .tab{flex:0 0 auto; padding:10px 14px; border-radius:999px; border:1px solid var(--glass-bd); background:var(--chip); color:var(--fg); font-weight:700; letter-spacing:.1px; cursor:pointer}
+    .tab[aria-selected="true"]{background:#ffffff14; border-color:#ffffff55}
 
-    /* Grid cards */
+    /* Sections */
+    section{padding:14px}
+
+    /* LINKS (usa el primer diseño: lista de botones) */
+    .list{display:grid; gap:14px; margin:6px 0 18px}
+    .item{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--fg); background:#1f1f22; border:1.5px solid #ffffff1c; border-radius:18px; padding:14px 16px; box-shadow:0 10px 0 rgba(0,0,0,.45); transition:transform .08s, box-shadow .08s}
+    .item:hover{transform:translateY(-2px); box-shadow:0 14px 0 rgba(0,0,0,.36)}
+    .icon{width:44px; height:44px; display:grid; place-items:center; border-radius:12px; background:#121214; border:1px solid #ffffff22}
+    .label{font-weight:800}
+
+    /* POSTS */
     .grid{display:grid; grid-template-columns:1fr; gap:16px}
-    @media(min-width:720px){ .grid{grid-template-columns:1fr 1fr} }
+    @media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+    .card{position:relative; overflow:hidden; border-radius:18px; background:#1c1c1f; border:1px solid var(--glass-bd); min-height:180px}
+    .card h3{position:absolute; left:12px; top:10px; margin:0; background:#00000088; padding:6px 10px; border-radius:999px; font-size:12px; letter-spacing:.2px}
+    .slot{aspect-ratio:16/9; width:100%; display:grid; place-items:center}
+    iframe{width:100%; height:100%; border:0}
+    .empty{color:var(--muted); font-size:14px; padding:26px}
 
-    .card{
-      position:relative; overflow:hidden; border-radius:18px; background:#1f2027; border:1px solid var(--glass-bd); min-height:150px; box-shadow:0 12px 26px rgba(0,0,0,.35)
-    }
-    .card img.bg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: saturate(1.05) contrast(1.05);}
-    .card::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.00), rgba(0,0,0,.55));}
-    .card .label{position:absolute; left:16px; bottom:14px; font-weight:800; font-size:20px; letter-spacing:.2px}
-    .card .icon{position:absolute; right:14px; top:12px; width:44px; height:44px; display:grid; place-items:center; border-radius:999px; background:#00000088; border:1px solid #ffffff44}
-    .card a{position:absolute; inset:0; display:block}
-
-    footer{margin:18px 6px 4px; text-align:center; color:var(--muted); font-size:12px}
+    footer{padding:8px 0 18px; text-align:center; color:var(--muted); font-size:12px}
   </style>
 </head>
 <body>
-  <div class="frame">
-    <!-- Cover banner (usa cover.jpg) -->
-    <div class="cover">
-      <img src="cover.jpg" alt="Cover" onerror="this.style.display='none'">
-    </div>
-
+  <main class="phone">
+    <div class="cover"><img src="cover.jpg" alt="Cover" onerror="this.style.display='none'"></div>
     <header>
-      <img src="avatar.jpg" alt="Avatar" class="avatar" />
+      <img class="avatar" src="avatar.jpg" alt="Avatar">
       <div class="name">AndrewTVI</div>
       <div class="handle">Hola</div>
-      <div class="social">
-        <a class="sbtn" href="https://www.twitch.tv/andrewtvi" target="_blank" aria-label="Twitch">🎮</a>
-        <a class="sbtn" href="https://discord.com/invite/fCCrFsg4fB" target="_blank" aria-label="Discord">💬</a>
-        <a class="sbtn" href="https://www.youtube.com/@ElAndrewTVI" target="_blank" aria-label="YouTube">▶️</a>
-        <a class="sbtn" href="https://x.com/iandres_soto" target="_blank" aria-label="X">✖️</a>
-        <a class="sbtn" href="https://www.tiktok.com/@andrewtvi" target="_blank" aria-label="TikTok">🎵</a>
-        <a class="sbtn" href="https://kick.com/andrewtvi" target="_blank" aria-label="Kick">🟩</a>
-        <a class="sbtn" href="https://laby.net/@AndrewTVI" target="_blank" aria-label="Minecraft">🧊</a>
-        <a class="sbtn" href="https://linktr.ee/ATVICRAFT" target="_blank" aria-label="ATVICRAFT">🌐</a>
-        <a class="sbtn" href="https://www.instagram.com/andrewtvi" target="_blank" aria-label="Instagram">📸</a>
-      </div>
     </header>
 
-    <!-- Big image link cards (backgrounds opcionales) -->
-    <section class="grid">
-      <div class="card">
-        <img class="bg" src="card-directos.jpg" alt="Directos" onerror="this.style.display='none'">
-        <div class="icon">🎮</div>
-        <div class="label">Directos</div>
-        <a href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener"></a>
-      </div>
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-links" aria-selected="true" aria-controls="panel-links">Links</button>
+      <button class="tab" role="tab" id="tab-posts" aria-selected="false" aria-controls="panel-posts">Posts</button>
+    </nav>
 
-      <div class="card">
-        <img class="bg" src="card-corralon.jpg" alt="El Corralón" onerror="this.style.display='none'">
-        <div class="icon">💬</div>
-        <div class="label">EL CORRALON</div>
-        <a href="https://discord.com/invite/fCCrFsg4fB" target="_blank" rel="noopener"></a>
+    <!-- LINKS (igual que el primer diseño) -->
+    <section id="panel-links" role="tabpanel" aria-labelledby="tab-links">
+      <div class="list">
+        <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener"><span class="icon">🎮</span><span class="label">Directos</span></a>
+        <a class="item" href="https://discord.com/invite/fCCrFsg4fB" target="_blank" rel="noopener"><span class="icon">💬</span><span class="label">EL CORRALON</span></a>
+        <a class="item" href="https://www.youtube.com/@ElAndrewTVI" target="_blank" rel="noopener"><span class="icon">▶️</span><span class="label">Intento de youtuber</span></a>
+        <a class="item" href="https://x.com/iandres_soto" target="_blank" rel="noopener"><span class="icon">✖️</span><span class="label">X (Twitter)</span></a>
+        <a class="item" href="https://www.tiktok.com/@andrewtvi" target="_blank" rel="noopener"><span class="icon">🎵</span><span class="label">TikTok</span></a>
+        <a class="item" href="https://kick.com/andrewtvi" target="_blank" rel="noopener"><span class="icon">🟩</span><span class="label">KICK</span></a>
+        <a class="item" href="https://laby.net/@AndrewTVI" target="_blank" rel="noopener"><span class="icon">🧊</span><span class="label">Perfil de Minecraft</span></a>
+        <a class="item" href="https://linktr.ee/ATVICRAFT" target="_blank" rel="noopener"><span class="icon">🌐</span><span class="label">ATVICRAFT</span></a>
+        <a class="item" href="https://www.instagram.com/andrewtvi" target="_blank" rel="noopener"><span class="icon">📸</span><span class="label">Instagram</span></a>
       </div>
+    </section>
 
-      <div class="card">
-        <img class="bg" src="card-youtube.jpg" alt="YouTube" onerror="this.style.display='none'">
-        <div class="icon">▶️</div>
-        <div class="label">Intento de youtuber</div>
-        <a href="https://www.youtube.com/@ElAndrewTVI" target="_blank" rel="noopener"></a>
-      </div>
-
-      <div class="card">
-        <img class="bg" src="card-x.jpg" alt="X" onerror="this.style.display='none'">
-        <div class="icon">✖️</div>
-        <div class="label">X (Twitter)</div>
-        <a href="https://x.com/iandres_soto" target="_blank" rel="noopener"></a>
-      </div>
-
-      <div class="card">
-        <img class="bg" src="card-tiktok.jpg" alt="TikTok" onerror="this.style.display='none'">
-        <div class="icon">🎵</div>
-        <div class="label">TikTok</div>
-        <a href="https://www.tiktok.com/@andrewtvi" target="_blank" rel="noopener"></a>
-      </div>
-
-      <div class="card">
-        <img class="bg" src="card-kick.jpg" alt="Kick" onerror="this.style.display='none'">
-        <div class="icon">🟩</div>
-        <div class="label">KICK</div>
-        <a href="https://kick.com/andrewtvi" target="_blank" rel="noopener"></a>
-      </div>
-
-      <div class="card">
-        <img class="bg" src="card-mc.jpg" alt="Minecraft" onerror="this.style.display='none'">
-        <div class="icon">🧊</div>
-        <div class="label">Perfil de Minecraft</div>
-        <a href="https://laby.net/@AndrewTVI" target="_blank" rel="noopener"></a>
-      </div>
-
-      <div class="card">
-        <img class="bg" src="card-atvicraft.jpg" alt="ATVICRAFT" onerror="this.style.display='none'">
-        <div class="icon">🌐</div>
-        <div class="label">ATVICRAFT</div>
-        <a href="https://linktr.ee/ATVICRAFT" target="_blank" rel="noopener"></a>
-      </div>
-
-      <div class="card">
-        <img class="bg" src="card-ig.jpg" alt="Instagram" onerror="this.style.display='none'">
-        <div class="icon">📸</div>
-        <div class="label">Instagram</div>
-        <a href="https://www.instagram.com/andrewtvi" target="_blank" rel="noopener"></a>
+    <!-- POSTS: última foto IG, último video YT, tweet y TikTok -->
+    <section id="panel-posts" role="tabpanel" aria-labelledby="tab-posts" hidden>
+      <div class="grid">
+        <!-- Instagram -->
+        <article class="card"><h3>Instagram</h3>
+          <div class="slot" id="ig-slot"><div class="empty">Pega la URL del post más reciente en <code>CONFIG.instagram</code>.</div></div>
+        </article>
+        <!-- YouTube -->
+        <article class="card"><h3>YouTube</h3>
+          <div class="slot"><iframe id="yt-embed" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+        </article>
+        <!-- Tweet -->
+        <article class="card"><h3>Tweet</h3>
+          <div class="slot" id="tw-slot"><div class="empty">Pega la URL del tweet en <code>CONFIG.tweet</code>.</div></div>
+        </article>
+        <!-- TikTok -->
+        <article class="card"><h3>TikTok</h3>
+          <div class="slot" id="tt-slot"><div class="empty">Pega la URL del TikTok en <code>CONFIG.tiktok</code>.</div></div>
+        </article>
       </div>
     </section>
 
     <footer>© <span id="y"></span> AndrewTV • Hecho con GitHub Pages</footer>
-  </div>
+  </main>
 
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  <script>
+    // --- CONFIGURA AQUÍ TUS POSTS RECIENTES ---
+    const CONFIG = {
+      // URL del post de Instagram (ej: https://www.instagram.com/p/XXXXXXXX/)
+      instagram: "",
+      // URL del video de YouTube (puede ser watch?v= o youtu.be/)
+      youtube: "",
+      // URL del tweet
+      tweet: "",
+      // URL del TikTok
+      tiktok: ""
+    };
+
+    // Tabs simple
+    const tabs = { links: document.getElementById('panel-links'), posts: document.getElementById('panel-posts') };
+    document.getElementById('tab-links').onclick = () => { tabs.links.hidden=false; tabs.posts.hidden=true; document.getElementById('tab-links').setAttribute('aria-selected','true'); document.getElementById('tab-posts').setAttribute('aria-selected','false'); };
+    document.getElementById('tab-posts').onclick = () => { tabs.links.hidden=true; tabs.posts.hidden=false; document.getElementById('tab-links').setAttribute('aria-selected','false'); document.getElementById('tab-posts').setAttribute('aria-selected','true'); };
+
+    // Helper: extraer ID de YouTube
+    function ytId(u){
+      if(!u) return null;
+      const m = u.match(/(?:v=|\.be\/|shorts\/)([A-Za-z0-9_-]{6,})/);
+      return m?m[1]:null;
+    }
+
+    // Render YouTube
+    const yid = ytId(CONFIG.youtube);
+    if(yid){ document.getElementById('yt-embed').src = `https://www.youtube.com/embed/${yid}`; }
+
+    // Instagram embed
+    if(CONFIG.instagram){
+      const ig = document.getElementById('ig-slot');
+      ig.innerHTML = `<blockquote class="instagram-media" data-instgrm-permalink="${CONFIG.instagram}" data-instgrm-version="14"></blockquote>`;
+      const s=document.createElement('script'); s.src='https://www.instagram.com/embed.js'; s.async=true; document.body.appendChild(s);
+    }
+
+    // Tweet embed
+    if(CONFIG.tweet){
+      const tw = document.getElementById('tw-slot');
+      tw.innerHTML = `<blockquote class="twitter-tweet"><a href="${CONFIG.tweet}"></a></blockquote>`;
+      const s=document.createElement('script'); s.src='https://platform.twitter.com/widgets.js'; s.async=true; document.body.appendChild(s);
+    }
+
+    // TikTok embed
+    if(CONFIG.tiktok){
+      const tt = document.getElementById('tt-slot');
+      tt.innerHTML = `<blockquote class="tiktok-embed" cite="${CONFIG.tiktok}" data-video-id="" style="max-width:605px;min-width:325px"><section><a href="${CONFIG.tiktok}"></a></section></blockquote>`;
+      const s=document.createElement('script'); s.src='https://www.tiktok.com/embed.js'; s.async=true; document.body.appendChild(s);
+    }
+
+    // Año en footer
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
