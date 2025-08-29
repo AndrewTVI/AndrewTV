@@ -169,8 +169,10 @@
       instagramApi: "", // ej: https://tu-worker.workers.dev/ig/latest
       // Instagram: opción B) pega AQUÍ el <iframe> COMPLETO de un widget (LightWidget/SnapIn)
       instagramWidget: "",
+      // Instagram: C) perfil (fallback si no hay API ni widget)
+      instagramProfile: "https://www.instagram.com/andrewtvi/",
       // TikTok: video específico o botón al perfil
-      tiktok: "https://www.tiktok.com/@andrewtvi/video/7453786285866487045",
+      tiktok: "",
       tiktokProfile: "https://www.tiktok.com/@andrewtvi"
     };
 
@@ -183,7 +185,7 @@
     if (CONFIG.youtubeChannelId) {
       const id = CONFIG.youtubeChannelId.trim();
       const uploads = id.startsWith('UC') ? 'UU' + id.slice(2) : id;
-      document.getElementById('yt-embed').src = `https://www.youtube.com/embed?rel=0&modestbranding=1&playsinline=1&listType=playlist&list=${uploads}`;
+      document.getElementById('yt-embed').src = `https://www.youtube.com/embed/videoseries?rel=0&modestbranding=1&playsinline=1&list=${uploads}`;
     }
 
     // Instagram (A: API propia devuelve { permalink })
@@ -201,6 +203,12 @@
     if (!CONFIG.instagramApi && CONFIG.instagramWidget) {
       const ig = document.getElementById('ig-slot');
       ig.innerHTML = CONFIG.instagramWidget; // pega aquí el iframe del widget
+    }
+
+    // Instagram (C: fallback a botón de perfil)
+    if (!CONFIG.instagramApi && !CONFIG.instagramWidget && CONFIG.instagramProfile){
+      const ig = document.getElementById('ig-slot');
+      ig.innerHTML = `<a class=\"item\" href=\"${CONFIG.instagramProfile}\" target=\"_blank\" rel=\"noopener\" style=\"width:92%; text-decoration:none; margin:0 auto\"><span class=\"icon\">📸</span><span class=\"label\">Ver perfil en Instagram</span></a>`;
     }
 
     // Twitter timeline (auto por username)
@@ -222,6 +230,7 @@
     }
   </script>
 
+  <!-- Easter egg -->
   <!-- Cuando muera robenme el cerebro pa que hagan la feria que no pudieron -->
 </body>
 </html>
