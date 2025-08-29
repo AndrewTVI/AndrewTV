@@ -29,14 +29,14 @@
       display:flex; justify-content:center; align-items:flex-start; overflow-y:auto; padding:20px 16px 110px;
     }
 
-    /* ===== FRAME (Liquid Glass mejorado) ===== */
+    /* ===== FRAME (Liquid Glass) ===== */
     .phone{
       width:100%; max-width:880px; border-radius:var(--r-outer);
-      background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
+      background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border:1px solid var(--border);
-      backdrop-filter:blur(14px) saturate(160%);
-      -webkit-backdrop-filter:blur(14px) saturate(160%);
-      box-shadow:0 22px 48px rgba(0,0,0,.38);
+      backdrop-filter:blur(12px) saturate(140%);
+      -webkit-backdrop-filter:blur(12px) saturate(140%);
+      box-shadow:0 20px 40px rgba(0,0,0,.35);
       overflow:hidden; margin:0 auto;
     }
 
@@ -69,7 +69,7 @@
       border-radius:24px; padding:14px 16px;
       backdrop-filter:blur(10px) saturate(140%); -webkit-backdrop-filter:blur(10px) saturate(140%);
       transition:transform .08s ease, box-shadow .12s ease, background .2s ease;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(0,0,0,.22);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(0,0,0,.22);
     }
     .item:hover{transform:translateY(-2px); box-shadow:var(--glow)}
     .item:active,.item:focus-visible{transform:translateY(0); box-shadow:var(--glow)}
@@ -81,7 +81,7 @@
     /* POSTS */
     .grid{display:grid; grid-template-columns:1fr; gap:16px}
     @media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
-    .card{position:relative; overflow:hidden; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08)); border:1px solid var(--border); min-height:180px; backdrop-filter:blur(10px);}
+    .card{position:relative; overflow:hidden; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06)); border:1px solid var(--border); min-height:180px; backdrop-filter:blur(10px);}
     .card h3{position:absolute; left:12px; top:10px; margin:0; background:rgba(0,0,0,.45); padding:6px 10px; border-radius:999px; font-size:12px; letter-spacing:.2px}
     .slot{width:100%; display:block}
     .slot16x9{width:100%; display:grid; place-items:center; aspect-ratio:16/9}
@@ -93,9 +93,9 @@
 </head>
 <body>
   <main class="phone">
-    <div class="cover"><img src="cover.jpg" alt="Cover"></div>
+    <div class="cover"><img src="cover.webp" alt="Cover"></div>
     <header>
-      <img class="avatar" src="avatar.jpg" alt="Avatar" />
+      <img class="avatar" src="avatar.webp" alt="Avatar" />
       <div class="name">AndrewTVI</div>
       <div class="handle">Hola</div>
     </header>
@@ -109,15 +109,15 @@
     <!-- LINKS -->
     <section id="panel-links" role="tabpanel" aria-labelledby="tab-links">
       <div class="list">
-        <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/twitch.svg" alt="Twitch"></span><span class="label">Directos</span></a>
-        <a class="item" href="https://discord.com/invite/fCCrFsg4fB" target="_blank" rel="noopener"><span class="icon"><img src="icons/discord.svg" alt="Discord"></span><span class="label">EL CORRALON</span></a>
-        <a class="item" href="https://www.youtube.com/@ElAndrewTVI" target="_blank" rel="noopener"><span class="icon"><img src="icons/youtube.svg" alt="YouTube"></span><span class="label">Intento de youtuber</span></a>
-        <a class="item" href="https://x.com/iandres_soto" target="_blank" rel="noopener"><span class="icon"><img src="icons/x.svg" alt="X"></span><span class="label">X (Twitter)</span></a>
-        <a class="item" href="https://www.tiktok.com/@andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/tiktok.svg" alt="TikTok"></span><span class="label">TikTok</span></a>
-        <a class="item" href="https://kick.com/andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/kick.svg" alt="Kick"></span><span class="label">KICK</span></a>
-        <a class="item" href="https://laby.net/@AndrewTVI" target="_blank" rel="noopener"><span class="icon"><img src="icons/minecraft.svg" alt="Minecraft"></span><span class="label">Perfil de Minecraft</span></a>
-        <a class="item" href="https://linktr.ee/ATVICRAFT" target="_blank" rel="noopener"><span class="icon"><img src="icons/linktree.svg" alt="ATVICRAFT"></span><span class="label">ATVICRAFT</span></a>
-        <a class="item" href="https://www.instagram.com/andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/instagram.svg" alt="Instagram"></span><span class="label">Instagram</span></a>
+        <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/twitch.webp" alt="Twitch"></span><span class="label">Directos</span></a>
+        <a class="item" href="https://discord.com/invite/fCCrFsg4fB" target="_blank" rel="noopener"><span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">EL CORRALON</span></a>
+        <a class="item" href="https://www.youtube.com/@ElAndrewTVI" target="_blank" rel="noopener"><span class="icon"><img src="icons/youtube.webp" alt="YouTube"></span><span class="label">Intento de youtuber</span></a>
+        <a class="item" href="https://x.com/iandres_soto" target="_blank" rel="noopener"><span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">X (Twitter)</span></a>
+        <a class="item" href="https://www.tiktok.com/@andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/tiktok.webp" alt="TikTok"></span><span class="label">TikTok</span></a>
+        <a class="item" href="https://kick.com/andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/kick.webp" alt="Kick"></span><span class="label">KICK</span></a>
+        <a class="item" href="https://laby.net/@AndrewTVI" target="_blank" rel="noopener"><span class="icon"><img src="icons/minecraft.webp" alt="Minecraft"></span><span class="label">Perfil de Minecraft</span></a>
+        <a class="item" href="https://linktr.ee/ATVICRAFT" target="_blank" rel="noopener"><span class="icon"><img src="icons/linktree.webp" alt="ATVICRAFT"></span><span class="label">ATVICRAFT</span></a>
+        <a class="item" href="https://www.instagram.com/andrewtvi" target="_blank" rel="noopener"><span class="icon"><img src="icons/instagram.webp" alt="Instagram"></span><span class="label">Instagram</span></a>
       </div>
     </section>
 
@@ -130,13 +130,11 @@
         </article>
         <!-- YouTube -->
         <article class="card"><h3>YouTube</h3>
-          <div class="slot slot16x9"><iframe id="yt-embed" allowfullscreen></iframe></div>
+          <div class="slot slot16x9"><iframe id="yt-embed" allowfullscreen loading="lazy"></iframe></div>
         </article>
         <!-- X / Twitter -->
         <article class="card"><h3>Tweet</h3>
-          <div class="slot" id="tw-slot" style="padding:0 8px; width:100%; min-height:260px">
-            <a class="twitter-timeline" data-theme="dark" data-chrome="noheader nofooter noborders transparent" data-tweet-limit="1" id="tw-timeline" href="https://twitter.com/iandres_soto">Tweets by @iandres_soto</a>
-          </div>
+          <div class="slot" id="tw-slot"></div>
         </article>
         <!-- TikTok -->
         <article class="card"><h3>TikTok</h3>
@@ -156,47 +154,86 @@
       youtubeChannelId: "UCiDZC35tuPSR65J88ALn7zg",
       twitterUsername: "iandres_soto",
       instagramWidget: "<div class='elfsight-app-bcfa254f-d2c9-4100-b02e-75a673307e59' data-elfsight-app-lazy></div>",
-      tiktok: "",
       tiktokProfile: "https://www.tiktok.com/@andrewtvi"
     };
 
     // Tabs
     const tabs = { links: document.getElementById('panel-links'), posts: document.getElementById('panel-posts') };
-    document.getElementById('tab-links').onclick = () => { tabs.links.hidden=false; tabs.posts.hidden=true; document.getElementById('tab-links').setAttribute('aria-selected','true'); document.getElementById('tab-posts').setAttribute('aria-selected','false'); window.scrollTo({top:0,behavior:'smooth'}); };
-    document.getElementById('tab-posts').onclick = () => { tabs.links.hidden=true; tabs.posts.hidden=false; document.getElementById('tab-links').setAttribute('aria-selected','false'); document.getElementById('tab-posts').setAttribute('aria-selected','true'); window.scrollTo({top:0,behavior:'smooth'}); };
+    document.getElementById('tab-links').onclick = () => {
+      tabs.links.hidden=false; tabs.posts.hidden=true;
+      document.getElementById('tab-links').setAttribute('aria-selected','true');
+      document.getElementById('tab-posts').setAttribute('aria-selected','false');
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
 
-    // YouTube embed (playlist de subidas)
-    if (CONFIG.youtubeChannelId) {
-      const id = CONFIG.youtubeChannelId.trim();
-      const uploads = id.startsWith('UC') ? 'UU' + id.slice(2) : id;
-      document.getElementById('yt-embed').src = `https://www.youtube.com/embed/videoseries?list=${uploads}&rel=0`;
+    let postsBooted = false;
+    document.getElementById('tab-posts').onclick = () => {
+      tabs.links.hidden=true; tabs.posts.hidden=false;
+      document.getElementById('tab-links').setAttribute('aria-selected','false');
+      document.getElementById('tab-posts').setAttribute('aria-selected','true');
+      window.scrollTo({top:0,behavior:'smooth'});
+      if (!postsBooted){ initPosts(); postsBooted = true; }
+    };
+
+    // Helpers
+    function loadOnce(id, src){
+      return new Promise((res, rej) => {
+        if (document.getElementById(id)) return res();
+        const s=document.createElement('script');
+        s.id=id; s.src=src; s.async=true; s.onload=res; s.onerror=rej;
+        document.body.appendChild(s);
+      });
+    }
+    async function fetchRSSJson(rssUrl){
+      const api="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(rssUrl);
+      const r=await fetch(api,{headers:{"Accept":"application/json"}});
+      if(!r.ok) throw new Error("rss2json fail");
+      return r.json();
     }
 
-    // Instagram widget
-    if (CONFIG.instagramWidget) {
-      document.getElementById('ig-slot').innerHTML = CONFIG.instagramWidget;
-    }
-
-    // Twitter
-    if (CONFIG.twitterUsername) {
-      const a = document.getElementById('tw-timeline');
-      a.href = `https://twitter.com/${CONFIG.twitterUsername}`;
-      a.textContent = `Tweets by @${CONFIG.twitterUsername}`;
-      const s=document.createElement('script'); s.src='https://platform.twitter.com/widgets.js'; s.async=true; document.body.appendChild(s);
-    }
-
-    // TikTok
-    if (CONFIG.tiktok) {
-      const tt = document.getElementById('tt-slot');
-      tt.innerHTML = `<blockquote class='tiktok-embed' cite='${CONFIG.tiktok}' data-video-id='' style='max-width:605px;min-width:325px'><section><a href='${CONFIG.tiktok}'></a></section></blockquote>`;
-      const s=document.createElement('script'); s.src='https://www.tiktok.com/embed.js'; s.async=true; document.body.appendChild(s);
-    } else if (CONFIG.tiktokProfile) {
-      const tt=document.getElementById('tt-slot');
-      tt.innerHTML = `<a class='item' href='${CONFIG.tiktokProfile}' target='_blank' rel='noopener' style='width:92%; text-decoration:none; margin:0 auto'><span class='icon'>🎵</span><span class='label'>Ver perfil en TikTok</span></a>`;
+    // Init Posts
+    async function initPosts(){
+      // YouTube
+      if (CONFIG.youtubeChannelId){
+        const id=CONFIG.youtubeChannelId.trim();
+        const uploads=id.startsWith('UC')?'UU'+id.slice(2):id;
+        document.getElementById('yt-embed').src=`https://www.youtube.com/embed/videoseries?list=${uploads}&rel=0`;
+      }
+      // Instagram
+      if(CONFIG.instagramWidget){
+        document.getElementById('ig-slot').innerHTML=CONFIG.instagramWidget;
+      }
+      // TikTok
+      try{
+        const ttJson=await fetchRSSJson("https://rsshub.app/tiktok/user/andrewtvi");
+        const ttUrl=ttJson?.items?.[0]?.link;
+        const slot=document.getElementById('tt-slot');
+        if(ttUrl){
+          slot.innerHTML=`<blockquote class="tiktok-embed" cite="${ttUrl}" style="max-width:605px;min-width:325px"><section><a href="${ttUrl}"></a></section></blockquote>`;
+          await loadOnce('tt-js','https://www.tiktok.com/embed.js');
+          setTimeout(()=>{if(!slot.querySelector('iframe')){
+            slot.innerHTML=`<a class='item' href='${CONFIG.tiktokProfile}' target='_blank' rel='noopener' style='width:92%;margin:0 auto;text-decoration:none'><span class='icon'>🎵</span><span class='label'>Ver perfil en TikTok</span></a>`;
+          }},2500);
+        }
+      }catch(e){
+        document.getElementById('tt-slot').innerHTML=`<a class='item' href='${CONFIG.tiktokProfile}' target='_blank' rel='noopener' style='width:92%;margin:0 auto;text-decoration:none'><span class='icon'>🎵</span><span class='label'>Ver perfil en TikTok</span></a>`;
+      }
+      // Twitter
+      try{
+        const twJson=await fetchRSSJson(`https://nitter.net/${CONFIG.twitterUsername}/rss`);
+        const twUrl=twJson?.items?.[0]?.link?.replace("https://nitter.net/","https://twitter.com/");
+        const slot=document.getElementById('tw-slot');
+        if(twUrl){
+          slot.innerHTML=`<iframe loading="lazy" style="width:100%; height:520px; border:0; overflow:hidden; border-radius:12px" src="https://twitframe.com/show?url=${encodeURIComponent(twUrl)}"></iframe>`;
+        }else{
+          slot.innerHTML=`<a class='item' href='https://twitter.com/${CONFIG.twitterUsername}' target='_blank' rel='noopener' style='width:92%;margin:0 auto;text-decoration:none'><span class='icon'>🐦</span><span class='label'>Ver tweets en X</span></a>`;
+        }
+      }catch(e){
+        document.getElementById('tw-slot').innerHTML=`<a class='item' href='https://twitter.com/${CONFIG.twitterUsername}' target='_blank' rel='noopener' style='width:92%;margin:0 auto;text-decoration:none'><span class='icon'>🐦</span><span class='label'>Ver tweets en X</span></a>`;
+      }
     }
   </script>
 
-  <!-- Easter egg -->
   <!-- Cuando muera robenme el cerebro pa que hagan la feria que no pudieron -->
 </body>
 </html>
