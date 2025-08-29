@@ -6,13 +6,7 @@
   <title>@AndrewTVI | Links</title>
   <meta name="description" content="Links y posts recientes." />
   <meta name="theme-color" content="#b8a3ff" />
-
-  <!-- Favicons (con fallbacks) -->
-  <link rel="icon" href="favicon.webp" type="image/webp" />
-  <link rel="icon" href="favicon.png" type="image/png" sizes="32x32" />
-  <link rel="apple-touch-icon" href="favicon.png" />
-  <link rel="icon" href="favicon.ico" sizes="any" />
-
+  <link rel="icon" href="favicon.webp" type="image/webp" id="favicon"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -65,7 +59,9 @@
       min-width:120px; text-align:center;
     }
     .tab[aria-selected="true"]{box-shadow:var(--glow)}
-    .tab[aria-disabled="true"]{opacity:.45; cursor:not-allowed; filter:grayscale(40%)}
+    .tab[aria-disabled="true"]{
+      opacity:.45; cursor:not-allowed; filter:grayscale(40%);
+    }
 
     section{padding:14px}
 
@@ -83,11 +79,9 @@
     .item:hover{transform:translateY(-2px); box-shadow:var(--glow)}
     .item:active,.item:focus-visible{transform:translateY(0); box-shadow:var(--glow)}
 
-    /* Iconos sin contorno (grandes) */
-    .icon{width:auto;height:auto;display:grid;place-items:center;background:none;border:none;border-radius:0;padding:0}
-    .icon img{width:36px;height:36px;display:block}
-    /* Opcional: borde alrededor del icono, usa class="icon icon-bordered" si lo quieres */
-    .icon.icon-bordered img{border:1px solid var(--border);border-radius:10px}
+    /* Íconos */
+    .icon { width:auto; height:auto; display:grid; place-items:center; background:none; border:none; border-radius:0; padding:0; }
+    .icon img { width:36px; height:36px; display:block; }
 
     .label{font-weight:800}
 
@@ -102,6 +96,15 @@
     .empty{color:var(--muted); font-size:14px; padding:26px; text-align:center}
 
     footer{padding:16px 0 6px; text-align:center; color:var(--muted); font-size:12px}
+
+    /* 🔄 Favicon giratorio */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #favicon {
+      animation: spin 6s linear infinite;
+    }
   </style>
 </head>
 <body>
@@ -124,63 +127,33 @@
     <!-- LINKS -->
     <section id="panel-links" role="tabpanel" aria-labelledby="tab-links">
       <div class="list">
-        <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/twitch.webp" alt="Twitch"></span><span class="label">Directos</span>
-        </a>
-        <a class="item" href="https://discord.com/invite/fCCrFsg4fB" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">EL CORRALON</span>
-        </a>
-        <a class="item" href="https://www.youtube.com/@ElAndrewTVI" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/youtube.webp" alt="YouTube"></span><span class="label">Videos Chafas</span>
-        </a>
-        <a class="item" href="https://www.tiktok.com/@andrewtvi" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/tiktok.webp" alt="TikTok"></span><span class="label">TikTok</span>
-        </a>
-        <a class="item" href="https://x.com/iandres_soto" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">X (Twitter)</span>
-        </a>
-        <a class="item" href="https://www.instagram.com/andrewtvi" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/instagram.webp" alt="Instagram"></span><span class="label">Instagram</span>
-        </a>
-        <a class="item" href="https://kick.com/andrewtvi" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/kick.webp" alt="Kick"></span><span class="label">Directos sin anuncios</span>
-        </a>
-        <a class="item" href="https://laby.net/@AndrewTVI" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/minecraft.webp" alt="Minecraft"></span><span class="label">Perfil de Minecraft</span>
-        </a>
+        <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank"><span class="icon"><img src="icons/twitch.webp" alt="Twitch"></span><span class="label">Directos</span></a>
+        <a class="item" href="https://discord.com/invite/fCCrFsg4fB" target="_blank"><span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">EL CORRALON</span></a>
+        <a class="item" href="https://www.youtube.com/@ElAndrewTVI" target="_blank"><span class="icon"><img src="icons/youtube.webp" alt="YouTube"></span><span class="label">Videos Chafas</span></a>
+        <a class="item" href="https://www.tiktok.com/@andrewtvi" target="_blank"><span class="icon"><img src="icons/tiktok.webp" alt="TikTok"></span><span class="label">TikTok</span></a>
+        <a class="item" href="https://x.com/iandres_soto" target="_blank"><span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">X (Twitter)</span></a>
+        <a class="item" href="https://www.instagram.com/andrewtvi" target="_blank"><span class="icon"><img src="icons/instagram.webp" alt="Instagram"></span><span class="label">Instagram</span></a>
+        <a class="item" href="https://kick.com/andrewtvi" target="_blank"><span class="icon"><img src="icons/kick.webp" alt="Kick"></span><span class="label">Directos sin anuncios</span></a>
+        <a class="item" href="https://laby.net/@AndrewTVI" target="_blank"><span class="icon"><img src="icons/minecraft.webp" alt="Minecraft"></span><span class="label">Perfil de Minecraft</span></a>
       </div>
     </section>
 
     <!-- POSTS -->
     <section id="panel-posts" role="tabpanel" aria-labelledby="tab-posts" hidden>
       <div class="grid">
-        <article class="card"><h3>Instagram</h3>
-          <div class="slot" id="ig-slot"></div>
-        </article>
-        <article class="card"><h3>YouTube</h3>
-          <div class="slot slot16x9"><iframe id="yt-embed" allowfullscreen></iframe></div>
-        </article>
-        <article class="card"><h3>Tweet</h3>
-          <div class="slot" id="tw-slot" style="padding:0 8px; width:100%; min-height:260px"><div class="empty">Cargando tweet…</div></div>
-        </article>
-        <article class="card"><h3>TikTok</h3>
-          <div class="slot slot16x9" id="tt-slot"><div class="empty">Cargando TikTok…</div></div>
-        </article>
+        <article class="card"><h3>Instagram</h3><div class="slot" id="ig-slot"></div></article>
+        <article class="card"><h3>YouTube</h3><div class="slot slot16x9"><iframe id="yt-embed" allowfullscreen></iframe></div></article>
+        <article class="card"><h3>Tweet</h3><div class="slot" id="tw-slot" style="padding:0 8px; width:100%; min-height:260px"><div class="empty">Cargando tweet…</div></div></article>
+        <article class="card"><h3>TikTok</h3><div class="slot slot16x9" id="tt-slot"><div class="empty">Cargando TikTok…</div></div></article>
       </div>
     </section>
 
     <!-- ATVICRAFT -->
     <section id="panel-atvi" role="tabpanel" aria-labelledby="tab-atvi" hidden>
       <div class="list">
-        <a class="item" href="https://x.com/ATVICRAFT" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">Twitter</span>
-        </a>
-        <a class="item" href="https://www.instagram.com/atvicraft" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/instagram.webp" alt="Instagram"></span><span class="label">Instagram</span>
-        </a>
-        <a class="item" href="https://discord.com/invite/8rrXvbES29" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">Discord ATVICRAFT</span>
-        </a>
+        <a class="item" href="https://x.com/ATVICRAFT" target="_blank"><span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">Twitter</span></a>
+        <a class="item" href="https://www.instagram.com/atvicraft" target="_blank"><span class="icon"><img src="icons/instagram.webp" alt="Instagram"></span><span class="label">Instagram</span></a>
+        <a class="item" href="https://discord.com/invite/8rrXvbES29" target="_blank"><span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">Discord ATVICRAFT</span></a>
       </div>
     </section>
 
@@ -194,94 +167,48 @@
     const CONFIG = {
       youtubeChannelId: "UCiDZC35tuPSR65J88ALn7zg",
       instagramWidget: "<div class='elfsight-app-bcfa254f-d2c9-4100-b02e-75a673307e59' data-elfsight-app-lazy></div>",
-      workerUrl: "https://mute-leaf-ae49.andreshs2019.workers.dev", // tu Worker de Twitter
+      workerUrl: "https://mute-leaf-ae49.andreshs2019.workers.dev",
       twitterUser: "iandres_soto",
       tiktokJson: "data/latest.json"
     };
 
-    // Tabs
-    const tabs = {
-      links: document.getElementById('panel-links'),
-      posts: document.getElementById('panel-posts'),
-      atvi: document.getElementById('panel-atvi')
-    };
-    const btnLinks = document.getElementById('tab-links');
-    const btnPosts = document.getElementById('tab-posts');
-    const btnAtvi  = document.getElementById('tab-atvi');
-    const btnSoon  = document.getElementById('tab-soon');
-
-    function selectTab(which){
-      for (const k of Object.keys(tabs)){ tabs[k].hidden = true; }
-      [btnLinks, btnPosts, btnAtvi].forEach(b=>b.setAttribute('aria-selected','false'));
-      tabs[which].hidden = false;
-      ({links:btnLinks, posts:btnPosts, atvi:btnAtvi}[which]).setAttribute('aria-selected','true');
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-    btnLinks.onclick = ()=>selectTab('links');
-    btnPosts.onclick = ()=>selectTab('posts');
-    btnAtvi.onclick  = ()=>selectTab('atvi');
-    btnSoon.onclick  = e=>{ e.preventDefault(); };
-
-    // YouTube
-    if (CONFIG.youtubeChannelId) {
-      const id = CONFIG.youtubeChannelId.trim();
-      const uploads = id.startsWith('UC') ? 'UU' + id.slice(2) : id;
-      document.getElementById('yt-embed').src = `https://www.youtube.com/embed/videoseries?list=${uploads}&rel=0`;
-    }
-
-    // Instagram
-    if (CONFIG.instagramWidget) {
-      document.getElementById('ig-slot').innerHTML = CONFIG.instagramWidget;
-    }
-
-    // Helpers para normalizar URLs
+    // Normalizar URLs
     const canonTweet = (u)=> u ? u.replace("mobile.twitter.com","x.com").replace("twitter.com","x.com").split("?")[0] : "";
     const canonTikTok = (u)=> u ? u.split("?")[0] : "";
 
-    // Twitter via Worker
+    // Twitter
     async function loadTweet(){
       try{
         const url = `${CONFIG.workerUrl}?tw_user=${encodeURIComponent(CONFIG.twitterUser)}`;
-        const data = await fetch(url, { cache:"no-store" }).then(r=>r.json());
-        const link = canonTweet(data?.tweet || "");
+        const data = await fetch(url,{cache:"no-store"}).then(r=>r.json());
+        const link = canonTweet(data?.tweet);
         const slot = document.getElementById('tw-slot');
-
         if (link){
           slot.innerHTML = `<blockquote class="twitter-tweet"><a href="${link}"></a></blockquote>`;
-          if (!window.twttr || !window.twttr.widgets){
-            const s=document.createElement('script');
-            s.src='https://platform.twitter.com/widgets.js';
-            s.async=true;
-            s.onload=()=>window.twttr && window.twttr.widgets && window.twttr.widgets.load();
-            document.body.appendChild(s);
-          } else {
-            window.twttr.widgets.load();
-          }
-        } else {
-          slot.innerHTML = `<div class="empty">No se pudo obtener tweet.</div>`;
-        }
+          if (!window.twttr){let s=document.createElement("script");s.src="https://platform.twitter.com/widgets.js";s.async=true;document.body.appendChild(s);} 
+          else { window.twttr.widgets.load(); }
+        } else slot.innerHTML = `<div class="empty">No se pudo obtener tweet.</div>`;
       }catch(e){
         document.getElementById('tw-slot').innerHTML = `<div class="empty">Error cargando tweet.</div>`;
       }
     }
-    loadTweet();
 
-    // TikTok desde JSON
+    // TikTok
     async function loadTikTok(){
       try{
-        const j = await fetch(CONFIG.tiktokJson, { cache:"no-store" }).then(r=>r.json()).catch(()=>({}));
-        const link = canonTikTok(j?.tiktok || "");
+        const j = await fetch(CONFIG.tiktokJson,{cache:"no-store"}).then(r=>r.json()).catch(()=>({}));
+        const link = canonTikTok(j?.tiktok);
         const tt = document.getElementById('tt-slot');
         if (link){
           tt.innerHTML = `<blockquote class='tiktok-embed' cite='${link}' style='max-width:605px;min-width:325px'><section><a href='${link}'></a></section></blockquote>`;
-          const s=document.createElement('script'); s.src='https://www.tiktok.com/embed.js'; s.async=true; document.body.appendChild(s);
-        } else {
-          tt.innerHTML = `<div class="empty">No se pudo obtener TikTok.</div>`;
-        }
+          let s=document.createElement("script");s.src="https://www.tiktok.com/embed.js";s.async=true;document.body.appendChild(s);
+        } else tt.innerHTML = `<div class="empty">No se pudo obtener TikTok.</div>`;
       }catch(e){
         document.getElementById('tt-slot').innerHTML = `<div class="empty">Error cargando TikTok.</div>`;
       }
     }
+
+    loadTweet();
     loadTikTok();
   </script>
 
