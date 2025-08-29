@@ -78,32 +78,13 @@
     }
     .item:hover{transform:translateY(-2px); box-shadow:var(--glow)}
     .item:active,.item:focus-visible{transform:translateY(0); box-shadow:var(--glow)}
-/* Íconos en los botones */
-.icon {
-  width: auto; 
-  height: auto; 
-  display: grid; 
-  place-items: center; 
-  background: none;       /* 🔥 sin fondo */
-  border: none;           /* 🔥 sin borde */
-  border-radius: 0;       /* 🔥 sin esquinas redondeadas */
-  padding: 0;
-}
 
-.icon img {
-  width: 36px;   /* 🔥 tamaño del icono más grande */
-  height: 36px; 
-  display: block;
-}
+    /* Íconos en los botones (más grandes y sin contorno) */
+    .icon { width:auto; height:auto; display:grid; place-items:center; background:none; border:none; border-radius:0; padding:0; }
+    .icon img { width:36px; height:36px; display:block; }
 
-/* OPCIONAL: Íconos con borde ajustado */
-.icon-bordered img {
-  width: 36px;
-  height: 36px;
-  display: block;
-  border: 1px solid var(--border); /* 🔲 borde al rededor del icono */
-  border-radius: 10px;             /* 🔲 esquinas redondeadas opcionales */
-}
+    /* OPCIONAL: borde ajustado alrededor del icono: usa class="icon icon-bordered" si lo quieres */
+    .icon.icon-bordered img { border:1px solid var(--border); border-radius:10px; }
 
     .label{font-weight:800}
 
@@ -214,7 +195,8 @@
     const CONFIG = {
       youtubeChannelId: "UCiDZC35tuPSR65J88ALn7zg",
       instagramWidget: "<div class='elfsight-app-bcfa254f-d2c9-4100-b02e-75a673307e59' data-elfsight-app-lazy></div>",
-      workerUrl: "https://andrewtv-auto.andreshs2019.workers.dev/latest", // Cambia al tuyo
+      // ⬇️ Worker que ya probaste (devuelve { tweet: "https://x.com/..." })
+      workerUrl: "https://mute-leaf-ae49.andreshs2019.workers.dev",
       twitterUser: "iandres_soto",
       tiktokJson: "data/latest.json"
     };
@@ -257,17 +239,35 @@
     // Twitter via Worker
     async function loadTweet(){
       try{
-        const url = `${CONFIG.workerUrl}?tw_user=${encodeURIComponent(CONFIG.twitterUser)}`;
-        const data = await fetch(url).then(r=>r.json());
-        const link = data?.tweet || "";
+        // Permite tanto worker base como uno que acepte ?tw_user=
+        const hasQuery = CONFIG.workerUrl.includes("?");
+        const url = hasQuery
+          ? CONFIG.workerUrl
+          : `${CONFIG.workerUrl}?tw_user=${encodeURIComponent(CONFIG.twitterUser)}`;
+
+        const resp = await fetch(url, { cache: "no-store" });
+        const data = await resp.json().catch(()=>null);
+
+        const link = data && data.tweet ? String(data.tweet) : "";
         const slot = document.getElementById('tw-slot');
-        if (link){
+
+        if (link) {
           slot.innerHTML = `<blockquote class="twitter-tweet"><a href="${link}"></a></blockquote>`;
-          const s=document.createElement('script'); s.src='https://platform.twitter.com/widgets.js'; s.async=true; document.body.appendChild(s);
+
+          // Carga widgets.js sólo una vez
+          if (!window.twttr || !window.twttr.widgets) {
+            const s = document.createElement('script');
+            s.src = 'https://platform.twitter.com/widgets.js';
+            s.async = true;
+            s.onload = () => window.twttr && window.twttr.widgets && window.twttr.widgets.load();
+            document.body.appendChild(s);
+          } else {
+            window.twttr.widgets.load();
+          }
         } else {
           slot.innerHTML = `<div class="empty">No se pudo obtener tweet.</div>`;
         }
-      }catch(e){
+      } catch(e){
         document.getElementById('tw-slot').innerHTML = `<div class="empty">Error cargando tweet.</div>`;
       }
     }
@@ -276,7 +276,7 @@
     // TikTok desde JSON
     async function loadTikTok(){
       try{
-        const j = await fetch(CONFIG.tiktokJson).then(r=>r.json()).catch(()=>({}));
+        const j = await fetch(CONFIG.tiktokJson, { cache:"no-store" }).then(r=>r.json()).catch(()=>({}));
         const link = j?.tiktok || "";
         const tt = document.getElementById('tt-slot');
         if (link){
