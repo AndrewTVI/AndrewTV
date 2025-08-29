@@ -29,14 +29,14 @@
       display:flex; justify-content:center; align-items:flex-start; overflow-y:auto; padding:20px 16px 110px;
     }
 
-    /* ===== FRAME (Liquid Glass más sutil) ===== */
+    /* ===== FRAME (Liquid Glass mejorado) ===== */
     .phone{
       width:100%; max-width:880px; border-radius:var(--r-outer);
-      background:rgba(255,255,255,.05); /* casi transparente, conserva fondo */
+      background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
       border:1px solid var(--border);
-      backdrop-filter:blur(8px) saturate(120%);
-      -webkit-backdrop-filter:blur(8px) saturate(120%);
-      box-shadow:0 18px 42px rgba(0,0,0,.35);
+      backdrop-filter:blur(14px) saturate(160%);
+      -webkit-backdrop-filter:blur(14px) saturate(160%);
+      box-shadow:0 22px 48px rgba(0,0,0,.38);
       overflow:hidden; margin:0 auto;
     }
 
@@ -53,8 +53,8 @@
     /* Tabs */
     .tabs{display:flex; gap:8px; padding:14px 14px 0}
     .tab{flex:0 0 auto; padding:10px 14px; border-radius:999px; border:1px solid var(--border);
-      background:rgba(255,255,255,.08);
-      color:var(--fg); font-weight:700; cursor:pointer; backdrop-filter:blur(6px);
+      background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.07));
+      color:var(--fg); font-weight:700; cursor:pointer; backdrop-filter:blur(8px);
     }
     .tab[aria-selected="true"]{box-shadow:var(--glow)}
 
@@ -64,12 +64,12 @@
     .list{display:grid; gap:14px; margin:6px 0 18px}
     .item{
       position:relative; display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--fg);
-      background:rgba(255,255,255,.06);
+      background:linear-gradient(145deg, rgba(255,255,255,.20), rgba(255,255,255,.08));
       border:1px solid var(--border);
       border-radius:24px; padding:14px 16px;
-      backdrop-filter:blur(6px) saturate(120%);
-      -webkit-backdrop-filter:blur(6px) saturate(120%);
-      transition:transform .08s ease, box-shadow .12s ease;
+      backdrop-filter:blur(10px) saturate(140%); -webkit-backdrop-filter:blur(10px) saturate(140%);
+      transition:transform .08s ease, box-shadow .12s ease, background .2s ease;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(0,0,0,.22);
     }
     .item:hover{transform:translateY(-2px); box-shadow:var(--glow)}
     .item:active,.item:focus-visible{transform:translateY(0); box-shadow:var(--glow)}
@@ -81,9 +81,10 @@
     /* POSTS */
     .grid{display:grid; grid-template-columns:1fr; gap:16px}
     @media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
-    .card{position:relative; overflow:hidden; border-radius:18px; background:rgba(255,255,255,.06); border:1px solid var(--border); min-height:180px; backdrop-filter:blur(6px);}
+    .card{position:relative; overflow:hidden; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08)); border:1px solid var(--border); min-height:180px; backdrop-filter:blur(10px);}
     .card h3{position:absolute; left:12px; top:10px; margin:0; background:rgba(0,0,0,.45); padding:6px 10px; border-radius:999px; font-size:12px; letter-spacing:.2px}
-    .slot{aspect-ratio:16/9; width:100%; display:grid; place-items:center}
+    .slot{width:100%; display:block}
+    .slot16x9{width:100%; display:grid; place-items:center; aspect-ratio:16/9}
     iframe{width:100%; height:100%; border:0}
     .empty{color:var(--muted); font-size:14px; padding:26px; text-align:center}
 
@@ -129,17 +130,17 @@
         </article>
         <!-- YouTube -->
         <article class="card"><h3>YouTube</h3>
-          <div class="slot"><iframe id="yt-embed" allowfullscreen></iframe></div>
+          <div class="slot slot16x9"><iframe id="yt-embed" allowfullscreen></iframe></div>
         </article>
         <!-- X / Twitter -->
         <article class="card"><h3>Tweet</h3>
-          <div class="slot" id="tw-slot">
+          <div class="slot" id="tw-slot" style="padding:0 8px; width:100%; min-height:260px">
             <a class="twitter-timeline" data-theme="dark" data-chrome="noheader nofooter noborders transparent" data-tweet-limit="1" id="tw-timeline" href="https://twitter.com/iandres_soto">Tweets by @iandres_soto</a>
           </div>
         </article>
         <!-- TikTok -->
         <article class="card"><h3>TikTok</h3>
-          <div class="slot" id="tt-slot"></div>
+          <div class="slot slot16x9" id="tt-slot"></div>
         </article>
       </div>
     </section>
@@ -147,12 +148,14 @@
     <footer>© 2025 AndrewTVI • Hecho con GitHub Pages</footer>
   </main>
 
-  <script src="https://cdn.lightwidget.com/widgets/lightwidget.js"></script>
+  <!-- Instagram Feed (Elfsight) -->
+  <script src="https://elfsightcdn.com/platform.js" async></script>
+
   <script>
     const CONFIG = {
       youtubeChannelId: "UCiDZC35tuPSR65J88ALn7zg",
       twitterUsername: "iandres_soto",
-      instagramWidget: "<iframe src='//lightwidget.com/widgets/625768a5b858507987e4e4e737775195.html' scrolling='no' allowtransparency='true' class='lightwidget-widget' style='width:100%;border:0;overflow:hidden;'></iframe>",
+      instagramWidget: "<div class='elfsight-app-bcfa254f-d2c9-4100-b02e-75a673307e59' data-elfsight-app-lazy></div>",
       tiktok: "",
       tiktokProfile: "https://www.tiktok.com/@andrewtvi"
     };
