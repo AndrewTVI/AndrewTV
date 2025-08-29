@@ -2,7 +2,7 @@ name: Update latest social posts
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: "*/30 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -15,66 +15,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet
+      - name: Fetch latest TikTok (RSSHub → rss2json)
         shell: bash
         run: |
           set -uo pipefail
           mkdir -p data
+          USER_TT="andrewtvi"
 
-          # === CONFIG ===
-          TT_USER='andrewtvi'        # TikTok (sin @)
-          TW_USER='iandres_soto'     # Twitter/X en MINÚSCULAS (sin @)
+          API="https://api.rss2json.com/v1/api.json?rss_url=$(python3 - <<'PY'
+import urllib.parse
+print(urllib.parse.quote(f'https://rsshub.app/tiktok/user/{\"andrewtvi\"}', safe=''))
+PY
+)"
+          JSON="$(curl -fsSL "$API" || echo '{}')"
+          TTK="$(python3 - <<'PY'
+import json,sys
+j=json.loads(sys.stdin.read() or '{}')
+print((j.get('items') or [{}])[0].get('link',''))
+PY
+<<< "$JSON")"
 
-          sudo apt-get update -y >/dev/null
-          sudo apt-get install -y jq curl >/dev/null
+          # deja Twitter vacío (lo maneja Cloudflare Worker)
+          echo "{\"tiktok\":\"$TTK\",\"tweet\":\"\"}" > data/latest.json
 
-          json_get () { curl -sSL --retry 2 --retry-delay 1 --fail "$1" 2>/dev/null || printf '{}'; }
-
-          ##### TIKTOK (RSS -> fallback HTML)
-          TT_JSON="$(json_get "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Ftiktok%2Fuser%2F${TT_USER}")"
-          TIKTOK="$(echo "$TT_JSON" | jq -r 'if (.items|type=="array" and (.items|length)>0 and (.items[0].link|type=="string")) then .items[0].link else empty end' 2>/dev/null || true)"
-          if [ -z "${TIKTOK:-}" ]; then
-            RAW_TT="$(curl -sSL "https://r.jina.ai/http://www.tiktok.com/@${TT_USER}" 2>/dev/null || true)"
-            TIKTOK="$(printf '%s' "$RAW_TT" | grep -oiE "https://www\.tiktok\.com/@${TT_USER}/video/[0-9]+" | head -n1 || true)"
-          fi
-
-          ##### TWITTER / X (Nitter RSS -> HTML fallback)
-          find_tweet_from_html () {
-            local user_lc="$1"
-            local html="$2"
-            # Buscar link directo
-            local url
-            url="$(printf '%s' "$html" | grep -oiE "https?://(x|twitter)\.com/${user_lc}/status/[0-9]+" | head -n1 || true)"
-            if [ -n "$url" ]; then
-              echo "${url/https:\/\/x.com/https:\/\/twitter.com}"
-              return 0
-            fi
-            # Buscar tweetId
-            local id
-            id="$(printf '%s' "$html" | grep -oE '"tweetId":"[0-9]+' | head -n1 | sed -E 's/^"tweetId":"//' || true)"
-            if [ -n "$id" ]; then
-              echo "https://twitter.com/${user_lc}/status/${id}"
-              return 0
-            fi
-            return 1
-          }
-
-          TW_URL=""
-          RAW_TW="$(curl -sSL "https://r.jina.ai/http://x.com/${TW_USER}" 2>/dev/null || true)"
-          TW_URL="$(find_tweet_from_html "${TW_USER}" "${RAW_TW}" || true)"
-
-          TWEET="$TW_URL"
-
-          echo "TIKTOK: ${TIKTOK:-<vacío>}"
-          echo "TWEET : ${TWEET:-<vacío>}"
-
-          TIKTOK_SAFE=${TIKTOK//\"/\\\"}
-          TWEET_SAFE=${TWEET//\"/\\\"}
-          printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
-          cat data/latest.json
-
-      - name: Commit & push if changed
+      - name: Commit & push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update latest.json"
+          commit_message: "chore: update data/latest.json (tiktok)"
           file_pattern: data/latest.json
