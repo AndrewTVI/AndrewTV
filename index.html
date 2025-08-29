@@ -22,68 +22,47 @@
       --border:rgba(255,255,255,.25);
       --fg:#f3f5f7;
       --muted:#c9cad0;
-      --purple:#a78bfa;
-      --glow: 0 0 0 1px rgba(167,139,250,.45), 0 12px 28px rgba(167,139,250,.25);
-      --r-outer:28px; --r-inner:20px;
-
-      /* Tema ATVI */
-      --atvi1:#0d1a2b; --atvi2:#0a2b4a; --atviAccent:#67b3ff;
+      --glow: 0 0 0 1px rgba(167,139,250,.45), 0 12px 28px rgba(167,139,250,.25); /* por defecto links (morado) */
+      --r-outer:28px;
     }
     *{box-sizing:border-box}
     html{height:100%; scroll-behavior:smooth}
     body{
       min-height:100vh; margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--fg);
-      background:
-        radial-gradient(900px 540px at 50% -10%, #a78bfa26, transparent),
-        linear-gradient(180deg, var(--bg-2), var(--bg-1));
+      background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
       display:flex; justify-content:center; align-items:flex-start; overflow-y:auto; padding:20px 16px 110px;
-      transition: background .35s ease;
-    }
-    /* Tema alterno ATVICRAFT */
-    body[data-mode="atvi"]{
-      background:
-        radial-gradient(900px 540px at 50% -10%, #67b3ff22, transparent),
-        linear-gradient(180deg, var(--atvi2), var(--atvi1));
+      transition: background .25s ease;
     }
 
-    /* ===== Starfield ===== */
+    /* ===== STARFIELD DENSO (3 capas) ===== */
     .stars,
     .stars::before,
     .stars::after{
       content:"";
       position:fixed;
-      inset:-10vh 0 0 0;
+      inset:-20vh -10vw;
       pointer-events:none;
-      z-index:-1;
+      z-index:0;
       background-repeat:repeat;
-      background-size:2000px 2000px;
-      animation:starScroll linear infinite;
-      opacity:.55;
-    }
-    .stars{
       background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.8) 99%, transparent 0),
-        radial-gradient(1px 1px at 80% 40%, rgba(255,255,255,.6) 99%, transparent 0),
-        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.7) 99%, transparent 0);
-      animation-duration:60s;
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,.9) 40%, transparent 42%),
+        radial-gradient(1.5px 1.5px at 60px 80px, rgba(255,255,255,.7) 40%, transparent 42%),
+        radial-gradient(1.2px 1.2px at 120px 50px, rgba(255,255,255,.6) 40%, transparent 42%),
+        radial-gradient(1.8px 1.8px at 200px 120px, rgba(255,255,255,.8) 40%, transparent 42%),
+        radial-gradient(1px 1px at 300px 200px, rgba(255,255,255,.5) 40%, transparent 42%);
+      animation: starFloat 40s linear infinite;
+      opacity:.9;
+      filter: drop-shadow(0 0 1px rgba(255,255,255,.4));
     }
-    .stars::before{
-      background-image:
-        radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,.6) 99%, transparent 0),
-        radial-gradient(1px 1px at 20% 60%, rgba(255,255,255,.7) 99%, transparent 0),
-        radial-gradient(1.5px 1.5px at 70% 90%, rgba(255,255,255,.8) 99%, transparent 0);
-      animation-duration:90s; opacity:.45;
+    .stars{ background-size:240px 240px; animation-duration:40s; }
+    .stars::before{ background-size:320px 320px; animation-duration:55s; }
+    .stars::after{ background-size:420px 420px; animation-duration:70s; }
+    @keyframes starFloat{
+      from{ transform: translateY(10vh); }
+      to  { transform: translateY(-40vh); }
     }
-    .stars::after{
-      background-image:
-        radial-gradient(1.5px 1.5px at 40% 30%, rgba(255,255,255,.9) 99%, transparent 0),
-        radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,.8) 99%, transparent 0),
-        radial-gradient(1px 1px at 5% 95%, rgba(255,255,255,.6) 99%, transparent 0);
-      animation-duration:120s; opacity:.35;
-    }
-    @keyframes starScroll{
-      from{ background-position:0 0; }
-      to  { background-position:0 -2000px; } /* suben */
+    @media (prefers-reduced-motion: reduce){
+      .stars, .stars::before, .stars::after{ animation: none !important; }
     }
 
     /* FRAME */
@@ -94,7 +73,7 @@
       backdrop-filter:blur(14px) saturate(160%);
       -webkit-backdrop-filter:blur(14px) saturate(160%);
       box-shadow:0 22px 48px rgba(0,0,0,.38);
-      overflow:hidden; margin:0 auto;
+      overflow:hidden; margin:0 auto; position:relative; z-index:1;
     }
 
     /* Cover */
@@ -103,9 +82,13 @@
     .cover::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 58%, rgba(0,0,0,.58))}
 
     header{position:relative; text-align:center; padding:0 18px 12px}
-    .avatar{position:relative; top:-46px; z-index:2; width:100px; height:100px; border-radius:999px; object-fit:cover; border:3px solid rgba(255,255,255,.85); box-shadow:0 10px 24px rgba(0,0,0,.32)}
+    .avatar{position:relative; top:-46px; z-index:2; width:100px; height:100px; border-radius:999px; object-fit:cover; border:3px solid rgba(255,255,255,.85); box-shadow:0 10px 24px rgba(0,0,0,.32); transition:opacity .18s ease, transform .18s ease}
+    .avatar.swap-fade{opacity:0; transform:scale(.985)}
     .name{margin-top:-38px; font-weight:800; font-size:26px}
     .handle{color:var(--muted); font-weight:600}
+    .ticker{ margin-top:6px; font-weight:700; letter-spacing:.2px; color:#cfe0ff; min-height:1.6em }
+    .ticker.fade{ opacity:0; transition:opacity .15s ease }
+    .ticker.show{ opacity:1 }
 
     /* Tabs */
     .tabs{display:flex; gap:8px; padding:14px; justify-content:center; flex-wrap:wrap}
@@ -114,11 +97,11 @@
       background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.07));
       color:var(--fg); font-weight:700; cursor:pointer; backdrop-filter:blur(8px);
       min-width:120px; text-align:center;
-      transition:transform .12s ease, box-shadow .12s ease;
+      transition: box-shadow .15s ease, transform .08s ease;
     }
+    .tab:hover{ transform: translateY(-1px); }
     .tab[aria-selected="true"]{box-shadow:var(--glow)}
     .tab[aria-disabled="true"]{opacity:.45; cursor:not-allowed; filter:grayscale(40%)}
-    .tab.is-press{ transform:scale(.96); }
 
     section{padding:14px}
 
@@ -136,65 +119,72 @@
     .item:hover{transform:translateY(-2px); box-shadow:var(--glow)}
     .item:active,.item:focus-visible{transform:translateY(0); box-shadow:var(--glow)}
 
-    /* Iconos grandes sin borde */
+    /* Iconos grandes */
     .icon{width:auto;height:auto;display:grid;place-items:center;background:none;border:none;border-radius:0;padding:0}
     .icon img{width:36px;height:36px;display:block}
-
     .label{font-weight:800}
 
-    /* POSTS */
+    /* PANELS (transición) */
+    .panel{ opacity:0; transform: translateY(8px); transition:opacity .18s ease, transform .18s ease }
+    .panel.active{ opacity:1; transform: translateY(0) }
+
+    /* POSTS Grid */
     .grid{display:grid; grid-template-columns:1fr; gap:16px}
     @media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
     .card{position:relative; overflow:hidden; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08)); border:1px solid var(--border); min-height:180px; backdrop-filter:blur(10px);}
     .card h3{position:absolute; left:12px; top:10px; margin:0; background:rgba(0,0,0,.45); padding:6px 10px; border-radius:999px; font-size:12px; letter-spacing:.2px}
-    .slot{width:100%; display:block}
+    .slot{width:100%; display:block; min-height:420px}
     .slot16x9{width:100%; display:grid; place-items:center; aspect-ratio:16/9}
     iframe{width:100%; height:100%; border:0}
     .empty{color:var(--muted); font-size:14px; padding:26px; text-align:center}
 
-    /* Footer typing */
-    footer{padding:16px 0 6px; text-align:center; color:var(--muted); font-size:12px}
-    #marquee{
-      display:inline-block; font-weight:800; letter-spacing:.3px; color:#e9e7ff; position:relative;
+    /* Ajuste widgets Elfsight */
+    #ig-slot .elfsight-app,
+    #tw-slot .elfsight-app,
+    #tt-slot .elfsight-app,
+    #atvi-feed .elfsight-app{
+      width:100%;
+      min-height:420px;
     }
-    #marquee::after{
-      content:""; width:2px;height:1.05em; background:#e9e7ff; display:inline-block; margin-left:3px;
-      animation:blink .9s steps(1,end) infinite; vertical-align:-2px;
-    }
-    @keyframes blink{ 50%{opacity:0} }
 
-    /* Tema visual dentro de ATVI */
-    body[data-mode="atvi"] .tab[aria-selected="true"]{
-      box-shadow:0 0 0 1px rgba(103,179,255,.45), 0 12px 28px rgba(103,179,255,.25);
+    footer{padding:16px 0 6px; text-align:center; color:var(--muted); font-size:12px}
+    /* TEMAS por sección */
+    body:not([data-mode]), body[data-mode="links"]{
+      --bg-1:#0b0b0e; --bg-2:#14141a;
+      --glow: 0 0 0 1px rgba(167,139,250,.45), 0 12px 28px rgba(167,139,250,.25);
     }
-    body[data-mode="atvi"] .item{
-      background:linear-gradient(145deg, rgba(103,179,255,.18), rgba(255,255,255,.07));
-      border-color:rgba(103,179,255,.35);
+    body[data-mode="posts"]{
+      --bg-1:#0a0f1a; --bg-2:#0e1623;
+      --glow: 0 0 0 1px rgba(104,168,255,.35), 0 12px 28px rgba(104,168,255,.22);
+    }
+    body[data-mode="atvi"]{
+      --bg-1:#071018; --bg-2:#0a1a29;
+      --glow: 0 0 0 1px rgba(64,145,255,.45), 0 12px 28px rgba(64,145,255,.25);
     }
   </style>
 </head>
-<body>
-  <!-- Fondo animado -->
+<body data-mode="links">
   <div class="stars"></div>
 
   <main class="phone">
-    <div class="cover"><img src="cover.webp" alt="Cover"></div>
+    <div class="cover"><img id="cover" src="cover.webp" alt="Cover"></div>
     <header>
-      <img class="avatar" src="avatar.webp" alt="Avatar" />
-      <div class="name">AndrewTVI</div>
-      <div class="handle">Hola</div>
+      <img id="avatar" class="avatar" src="avatar.webp" alt="Avatar" />
+      <div id="name" class="name">AndrewTVI</div>
+      <div id="handle" class="handle">Hola</div>
+      <div id="ticker" class="ticker"></div>
     </header>
 
     <!-- Tabs -->
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-links" aria-selected="true" aria-controls="panel-links">Links</button>
       <button class="tab" role="tab" id="tab-posts" aria-selected="false" aria-controls="panel-posts">Posts</button>
-      <button class="tab" role="tab" id="tab-atvi"  aria-selected="false" aria-controls="panel-atvi">ATVICRAFT</button>
-      <button class="tab" role="tab" id="tab-soon"  aria-selected="false" aria-disabled="true">PRÓXIMAMENTE</button>
+      <button class="tab" role="tab" id="tab-atvi" aria-selected="false" aria-controls="panel-atvi">ATVICRAFT</button>
+      <button class="tab" role="tab" id="tab-soon" aria-selected="false" aria-disabled="true">PRÓXIMAMENTE</button>
     </nav>
 
     <!-- LINKS -->
-    <section id="panel-links" role="tabpanel" aria-labelledby="tab-links">
+    <section id="panel-links" class="panel active" role="tabpanel" aria-labelledby="tab-links">
       <div class="list">
         <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener">
           <span class="icon"><img src="icons/twitch.webp" alt="Twitch"></span><span class="label">Directos</span>
@@ -224,25 +214,27 @@
     </section>
 
     <!-- POSTS -->
-    <section id="panel-posts" role="tabpanel" aria-labelledby="tab-posts" hidden>
+    <section id="panel-posts" class="panel" role="tabpanel" aria-labelledby="tab-posts" hidden>
       <div class="grid">
         <!-- Instagram -->
         <article class="card"><h3>Instagram</h3>
-          <div class="slot" id="ig-slot"></div>
+          <div class="slot" id="ig-slot">
+            <div class="elfsight-app-bcfa254f-d2c9-4100-b02e-75a673307e59" data-elfsight-app-lazy></div>
+          </div>
         </article>
         <!-- YouTube -->
         <article class="card"><h3>YouTube</h3>
           <div class="slot slot16x9"><iframe id="yt-embed" allowfullscreen></iframe></div>
         </article>
-        <!-- X / Twitter (Elfsight) -->
-        <article class="card"><h3>Tweet</h3>
+        <!-- Twitter -->
+        <article class="card"><h3>Twitter</h3>
           <div class="slot" id="tw-slot">
             <div class="elfsight-app-e74ab7a2-0a05-429c-8ccf-ed4a335ad494" data-elfsight-app-lazy></div>
           </div>
         </article>
-        <!-- TikTok (Elfsight) -->
+        <!-- TikTok -->
         <article class="card"><h3>TikTok</h3>
-          <div class="slot slot16x9" id="tt-slot">
+          <div class="slot" id="tt-slot">
             <div class="elfsight-app-081b44e4-c8e9-47b5-b96f-36c35206ad79" data-elfsight-app-lazy></div>
           </div>
         </article>
@@ -250,42 +242,104 @@
     </section>
 
     <!-- ATVICRAFT -->
-    <section id="panel-atvi" role="tabpanel" aria-labelledby="tab-atvi" hidden>
+    <section id="panel-atvi" class="panel" role="tabpanel" aria-labelledby="tab-atvi" hidden>
       <div class="list">
-        <a class="item" href="https://x.com/ATVICRAFT" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">Twitter</span>
+        <a class="item" href="https://discord.com/invite/8rrXvbES29" target="_blank" rel="noopener">
+          <span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">Únete al Discord</span>
         </a>
         <a class="item" href="https://www.instagram.com/atvicraft" target="_blank" rel="noopener">
           <span class="icon"><img src="icons/instagram.webp" alt="Instagram"></span><span class="label">Instagram</span>
         </a>
-        <a class="item" href="https://discord.com/invite/8rrXvbES29" target="_blank" rel="noopener">
-          <span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">Discord ATVICRAFT</span>
+        <a class="item" href="https://x.com/ATVICRAFT" target="_blank" rel="noopener">
+          <span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">Twitter</span>
         </a>
       </div>
+
+      <article class="card"><h3>Noticias</h3>
+        <div class="slot" id="atvi-feed">
+          <div class="elfsight-app-4299bc62-2bf2-4ddc-ad9c-74cc377d7656" data-elfsight-app-lazy></div>
+        </div>
+      </article>
     </section>
 
-    <footer>
-      <span id="marquee"></span>
-      <noscript>© 2025 AndrewTVI • Hecho con GitHub Pages</noscript>
-    </footer>
+    <footer>© 2025 AndrewTVI • Hecho con GitHub Pages</footer>
   </main>
 
-  <!-- Elfsight (una sola vez para todos sus widgets) -->
-  <script src="https://elfsightcdn.com/platform.js" async></script>
-
   <script>
-    const CONFIG = {
-      youtubeChannelId: "UCiDZC35tuPSR65J88ALn7zg",
-      instagramWidget: "<div class='elfsight-app-bcfa254f-d2c9-4100-b02e-75a673307e59' data-elfsight-app-lazy></div>",
-
-      profiles: {
-        links: { title:'AndrewTVI',  desc:'Hola',               avatar:'avatar.webp',      cover:'cover.webp' },
-        posts: { title:'AndrewTVI',  desc:'Mis publicaciones',  avatar:'avatar.webp',      cover:'cover.webp' },
-        atvi:  { title:'ATVICRAFT', desc:'Servidor de Minecraft', avatar:'atvi_avatar.webp', cover:'atvi_cover.webp' } // súbelos cuando quieras
+    // ====== CONFIG PERFILES / TEXTOS POR SECCIÓN ======
+    const PROFILE = {
+      links: {
+        name: "AndrewTVI",
+        handle: "Hola",
+        avatar: "avatar.webp",
+        cover:  "cover.webp",
+        ticker: ["#Proyecto 1K"]
+      },
+      posts: {
+        name: "AndrewTVI",
+        handle: "Publicaciones",
+        avatar: "avatar.webp",
+        cover:  "cover.webp",
+        ticker: ["#Proyecto 1K"]
+      },
+      atvi: {
+        name: "ATVICRAFT",
+        handle: "Servidor de Minecraft",
+        avatar: "atvi-avatar.webp",   // <-- ajusta si usas otro nombre
+        cover:  "atvi-cover.webp",    // <-- ajusta si usas otro nombre
+        ticker: ["#Proyecto 1K"]
       }
     };
 
-    // --- Tabs + Mini-animación
+    // ====== YOUTUBE (lista de subidas del canal) ======
+    const YT_CHANNEL_ID = "UCiDZC35tuPSR65J88ALn7zg";
+    if (YT_CHANNEL_ID) {
+      const id = YT_CHANNEL_ID.trim();
+      const uploads = id.startsWith('UC') ? 'UU' + id.slice(2) : id;
+      document.getElementById('yt-embed').src =
+        `https://www.youtube.com/embed/videoseries?list=${uploads}&rel=0`;
+    }
+
+    // ====== TYPEWRITER SIN FLASH ======
+    const tickerEl = document.getElementById('ticker');
+    function typeWriterLoop(texts){
+      let i=0, j=0, typing=true;
+      const speed = 45, hold = 1200, erase = 30;
+      const cycle = ()=>{
+        if (!tickerEl) return;
+        const t = texts[i] || "";
+        if (typing){
+          tickerEl.textContent = t.slice(0, j++);
+          tickerEl.classList.add('show'); tickerEl.classList.remove('fade');
+          if (j > t.length){ typing=false; setTimeout(cycle, hold); return; }
+          setTimeout(cycle, speed);
+        }else{
+          tickerEl.classList.add('fade'); tickerEl.classList.remove('show');
+          tickerEl.textContent = t.slice(0, j = Math.max(0, j-1));
+          if (j === 0){ typing=true; i = (i+1) % texts.length; setTimeout(cycle, 120); return; }
+          setTimeout(cycle, erase);
+        }
+      };
+      cycle();
+    }
+
+    // ====== ELFSIGHT: cargar una sola vez y refrescar ======
+    let elfsightLoaded = false;
+    function ensureElfsight(){
+      if (!elfsightLoaded) {
+        const s = document.createElement('script');
+        s.src = 'https://elfsightcdn.com/platform.js';
+        s.async = true;
+        document.body.appendChild(s);
+        elfsightLoaded = true;
+      } else {
+        // “poke” a layout para que re-calculen
+        setTimeout(()=>window.dispatchEvent(new Event('resize')), 300);
+      }
+    }
+    let postsInited=false, atviInited=false;
+
+    // ====== CAMBIO DE PESTAÑAS / TEMA / PERFIL ======
     const tabs = {
       links: document.getElementById('panel-links'),
       posts: document.getElementById('panel-posts'),
@@ -296,63 +350,55 @@
     const btnAtvi  = document.getElementById('tab-atvi');
     const btnSoon  = document.getElementById('tab-soon');
 
-    [btnLinks, btnPosts, btnAtvi].forEach(b=>{
-      b.addEventListener('click', ()=>{ b.classList.add('is-press'); setTimeout(()=>b.classList.remove('is-press'),160); });
-    });
-    btnSoon.onclick = e=> e.preventDefault();
+    const avatarEl = document.getElementById('avatar');
+    const coverEl  = document.getElementById('cover');
+    const nameEl   = document.getElementById('name');
+    const handleEl = document.getElementById('handle');
 
-    function applyProfile(key){
-      const prof = CONFIG.profiles[key] || CONFIG.profiles.links;
-      document.querySelector('.name').textContent   = prof.title;
-      document.querySelector('.handle').textContent = prof.desc;
-      document.querySelector('.avatar').src         = prof.avatar;
-      document.querySelector('.cover img').src      = prof.cover;
-      document.body.setAttribute('data-mode', key === 'atvi' ? 'atvi' : 'links');
+    function swapSrc(img, url){
+      img.classList.add('swap-fade');
+      const on = ()=>{ img.removeEventListener('transitionend', on); img.src = url; requestAnimationFrame(()=>img.classList.remove('swap-fade')); };
+      img.addEventListener('transitionend', on);
+      if (getComputedStyle(img).transitionDuration === '0s') on(); // sin transición
+    }
+
+    function applyProfile(which){
+      const p = PROFILE[which] || PROFILE.links;
+      nameEl.textContent   = p.name;
+      handleEl.textContent = p.handle;
+      if (avatarEl.src.indexOf(p.avatar) === -1) swapSrc(avatarEl, p.avatar);
+      if (coverEl.src.indexOf(p.cover)   === -1) swapSrc(coverEl,  p.cover);
+      // reinicia ticker con textos del perfil
+      tickerEl.textContent = "";
+      typeWriterLoop(p.ticker || []);
     }
 
     function selectTab(which){
-      Object.keys(tabs).forEach(k => tabs[k].hidden = true);
+      // tema
+      document.body.setAttribute('data-mode', which);
+
+      // panel visible
+      Object.keys(tabs).forEach(k=>{
+        tabs[k].hidden = (k !== which);
+        tabs[k].classList.toggle('active', k===which);
+      });
       [btnLinks, btnPosts, btnAtvi].forEach(b=>b.setAttribute('aria-selected','false'));
-      tabs[which].hidden = false;
       ({links:btnLinks, posts:btnPosts, atvi:btnAtvi}[which]).setAttribute('aria-selected','true');
+
       applyProfile(which);
+      if (which === 'posts'){ ensureElfsight(); if(!postsInited){postsInited=true;} }
+      if (which === 'atvi'){  ensureElfsight(); if(!atviInited){ atviInited=true;} }
       window.scrollTo({top:0,behavior:'smooth'});
     }
+
     btnLinks.onclick = ()=>selectTab('links');
     btnPosts.onclick = ()=>selectTab('posts');
     btnAtvi.onclick  = ()=>selectTab('atvi');
+    btnSoon.onclick  = e=>{ e.preventDefault(); };
 
-    applyProfile('links'); // inicial
-
-    // --- YouTube (playlist de subidos)
-    if (CONFIG.youtubeChannelId) {
-      const id = CONFIG.youtubeChannelId.trim();
-      const uploads = id.startsWith('UC') ? 'UU' + id.slice(2) : id;
-      document.getElementById('yt-embed').src = `https://www.youtube.com/embed/videoseries?list=${uploads}&rel=0`;
-    }
-
-    // --- Instagram (Elfsight)
-    if (CONFIG.instagramWidget) {
-      document.getElementById('ig-slot').innerHTML = CONFIG.instagramWidget;
-    }
-
-    // --- Footer typing
-    function startMarquee(){
-      const el = document.getElementById('marquee');
-      const msg = '#Proyecto 1K';
-      let i = 0, dir = 1;
-      const tick = ()=>{
-        el.textContent = msg.slice(0, i);
-        i += dir;
-        if(i > msg.length + 6){ dir = -1; }
-        if(i < 0){ dir = 1; }
-        setTimeout(tick, dir>0 ? 80 : 40);
-      };
-      tick();
-    }
-    startMarquee();
-</script>
-
-  <!-- Cuando muera robenme el cerebro pa que hagan la feria que no pudieron -->
+    // inicia en Links
+    applyProfile('links');
+    typeWriterLoop(PROFILE.links.ticker || []);
+  </script>
 </body>
 </html>
