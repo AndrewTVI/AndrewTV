@@ -11,32 +11,38 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok (RSSHub → rss2json)
+      - name: Install tools
+        shell: bash
+        run: |
+          set -uo pipefail
+          sudo apt-get update -y >/dev/null
+          sudo apt-get install -y jq >/dev/null
+
+      - name: Fetch latest TikTok (RSSHub → rss2json) con tolerancia
         shell: bash
         run: |
           set -uo pipefail
           mkdir -p data
+
           USER_TT="andrewtvi"
 
-          API="https://api.rss2json.com/v1/api.json?rss_url=$(python3 - <<'PY'
-import urllib.parse
-print(urllib.parse.quote(f'https://rsshub.app/tiktok/user/{\"andrewtvi\"}', safe=''))
-PY
-)"
-          JSON="$(curl -fsSL "$API" || echo '{}')"
-          TTK="$(python3 - <<'PY'
-import json,sys
-j=json.loads(sys.stdin.read() or '{}')
-print((j.get('items') or [{}])[0].get('link',''))
-PY
-<<< "$JSON")"
+          # URL-encode usando jq (sin Python)
+          RSS_URL_ENC=$(printf '%s' "https://rsshub.app/tiktok/user/${USER_TT}" | jq -sRr @uri)
+          API="https://api.rss2json.com/v1/api.json?rss_url=${RSS_URL_ENC}"
 
-          # deja Twitter vacío (lo maneja Cloudflare Worker)
-          echo "{\"tiktok\":\"$TTK\",\"tweet\":\"\"}" > data/latest.json
+          # Descarga con reintentos; si falla, dejamos JSON vacío
+          JSON="$(curl -fsSL --retry 2 --retry-delay 2 "$API" || echo '{}')"
+
+          # Extrae link del primer item (si existe)
+          TTK="$(printf '%s' "$JSON" | jq -r '.items[0].link // ""')"
+
+          # Guardamos dejando tweet vacío (lo maneja tu Worker)
+          printf '%s\n' "{\"tiktok\":\"$TTK\",\"tweet\":\"\"}" > data/latest.json
 
       - name: Commit & push
         uses: stefanzweifel/git-auto-commit-action@v5
