@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet (robusto: Nitter RSS -> HTML fallback)
+      - name: Fetch latest TikTok & Tweet
         shell: bash
         run: |
           set -uo pipefail
@@ -23,7 +23,7 @@ jobs:
 
           # === CONFIG ===
           TT_USER='andrewtvi'        # TikTok (sin @)
-          TW_USER='iandres_soto'     # X/Twitter en MINÚSCULAS (sin @)
+          TW_USER='iandres_soto'     # Twitter/X en MINÚSCULAS (sin @)
 
           sudo apt-get update -y >/dev/null
           sudo apt-get install -y jq curl >/dev/null
@@ -42,14 +42,14 @@ jobs:
           find_tweet_from_html () {
             local user_lc="$1"
             local html="$2"
-            # 1) Enlaces /<user>/status/<id>
+            # Buscar link directo
             local url
             url="$(printf '%s' "$html" | grep -oiE "https?://(x|twitter)\.com/${user_lc}/status/[0-9]+" | head -n1 || true)"
             if [ -n "$url" ]; then
               echo "${url/https:\/\/x.com/https:\/\/twitter.com}"
               return 0
             fi
-            # 2) ID crudo "tweetId":"123..."
+            # Buscar tweetId
             local id
             id="$(printf '%s' "$html" | grep -oE '"tweetId":"[0-9]+' | head -n1 | sed -E 's/^"tweetId":"//' || true)"
             if [ -n "$id" ]; then
@@ -60,32 +60,8 @@ jobs:
           }
 
           TW_URL=""
-          # Mirrors Nitter (agrega/quita si alguno cae)
-          MIRRORS=(
-            "https://nitter.net"
-            "https://nitter.pufe.org"
-            "https://nitter.fdn.fr"
-            "https://nitter.hu"
-            "https://nitter.lacontrevoie.fr"
-          )
-          for base in "${MIRRORS[@]}"; do
-            RSS_URL="${base}/${TW_USER}/rss"
-            RSS="$(curl -sSL --retry 2 --retry-delay 1 --fail "$RSS_URL" 2>/dev/null || true)"
-            if [ -n "$RSS" ]; then
-              # ejemplo: <link>https://nitter.net/usuario/status/123...</link>
-              LINK="$(printf '%s' "$RSS" | grep -oE "<link>https?://[^<]*/status/[0-9]+</link>" | head -n1 | sed -E 's#</?link>##g' || true)"
-              if [ -n "$LINK" ]; then
-                # Normaliza a twitter.com
-                TW_URL="$(printf '%s' "$LINK" | sed -E 's#https?://[^/]*/#https://twitter.com/#')"
-                break
-              fi
-            fi
-          done
-
-          if [ -z "${TW_URL:-}" ]; then
-            RAW_TW="$(curl -sSL "https://r.jina.ai/http://x.com/${TW_USER}" 2>/dev/null || true)"
-            TW_URL="$(find_tweet_from_html "${TW_USER}" "${RAW_TW}" || true)"
-          fi
+          RAW_TW="$(curl -sSL "https://r.jina.ai/http://x.com/${TW_USER}" 2>/dev/null || true)"
+          TW_URL="$(find_tweet_from_html "${TW_USER}" "${RAW_TW}" || true)"
 
           TWEET="$TW_URL"
 
