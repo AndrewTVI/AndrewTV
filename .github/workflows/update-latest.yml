@@ -21,24 +21,39 @@ jobs:
           set -euo pipefail
           mkdir -p data
 
-          # 1) Último TikTok: usamos el fetcher de sólo lectura r.jina.ai
-          #    y extraemos el primer enlace /video/ del usuario.
+          # --- TikTok: primer /video/ del usuario ---
           TIKTOK_PAGE_URL="https://r.jina.ai/http://www.tiktok.com/@andrewtvi"
-          TIKTOK=$(curl -fsSL "$TIKTOK_PAGE_URL" \
-            | grep -oE "https://www\.tiktok\.com/@andrewtvi/video/[0-9]+" \
+          RAW_TT="$(curl -fsSL "$TIKTOK_PAGE_URL" || echo "")"
+          TIKTOK="$(printf '%s' "$RAW_TT" \
+            | grep -oE 'https://www\.tiktok\.com/@andrewtvi/video/[0-9]+' \
+            | head -n1 || true)"
+
+          # --- Twitter: soportar ABSOLUTO y RELATIVO desde Nitter ---
+          NITTER_PAGE_URL="https://r.jina.ai/http://nitter.net/iandres_soto"
+          RAW_TW="$(curl -fsSL "$NITTER_PAGE_URL" || echo "")"
+
+          # 1) intenta absoluto (https://nitter.net/iandres_soto/status/123)
+          TWEET=$(printf '%s' "$RAW_TW" \
+            | grep -oE 'https://nitter\.net/iandres_soto/status/[0-9]+' \
             | head -n1 || true)
 
-          # 2) Último Tweet: miramos Nitter "renderizado" y convertimos a twitter.com
-          NITTER_PAGE_URL="https://r.jina.ai/http://nitter.net/iandres_soto"
-          TWEET_NITTER=$(curl -fsSL "$NITTER_PAGE_URL" \
-            | grep -oE "https://nitter\.net/iandres_soto/status/[0-9]+" \
-            | head -n1 || true)
-          TWEET="${TWEET_NITTER/https:\/\/nitter.net\//https:\/\/twitter.com/}"
+          # 2) si no hay, intenta relativo (/iandres_soto/status/123)
+          if [ -z "${TWEET:-}" ]; then
+            REL=$(printf '%s' "$RAW_TW" \
+              | grep -oE '/iandres_soto/status/[0-9]+' \
+              | head -n1 || true)
+            if [ -n "$REL" ]; then
+              TWEET="https://twitter.com${REL}"
+            fi
+          else
+            # convertir nitter -> twitter
+            TWEET="${TWEET/https:\/\/nitter.net\//https:\/\/twitter.com/}"
+          fi
 
           echo "TIKTOK: $TIKTOK"
           echo "TWEET : $TWEET"
 
-          # Generar JSON (aunque vengan vacíos, para que siempre haya archivo)
+          # Generar JSON (aunque alguno venga vacío)
           TIKTOK_SAFE=${TIKTOK//\"/\\\"}
           TWEET_SAFE=${TWEET//\"/\\\"}
           printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
