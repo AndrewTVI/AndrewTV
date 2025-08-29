@@ -15,51 +15,75 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet via r.jina.ai (robusto)
+      - name: Fetch latest TikTok & Tweet via r.jina.ai (robusto + X/Twitter)
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p data
 
-          # --- TikTok: primer /video/ del usuario ---
-          TIKTOK_PAGE_URL="https://r.jina.ai/http://www.tiktok.com/@andrewtvi"
-          RAW_TT="$(curl -fsSL "$TIKTOK_PAGE_URL" || echo "")"
+          #### TikTok: primer /video/ del usuario
+          RAW_TT="$(curl -fsSL 'https://r.jina.ai/http://www.tiktok.com/@andrewtvi' || echo '')"
           TIKTOK="$(printf '%s' "$RAW_TT" \
-            | grep -oE 'https://www\.tiktok\.com/@andrewtvi/video/[0-9]+' \
+            | grep -oEi 'https://www\.tiktok\.com/@andrewtvi/video/[0-9]+' \
             | head -n1 || true)"
 
-          # --- Twitter: soportar ABSOLUTO y RELATIVO desde Nitter ---
-          NITTER_PAGE_URL="https://r.jina.ai/http://nitter.net/iandres_soto"
-          RAW_TW="$(curl -fsSL "$NITTER_PAGE_URL" || echo "")"
+          #### Tweet/X: combinamos varias fuentes (X, Twitter, Nitter) y buscamos varios formatos
+          RAW_X="$(curl -fsSL 'https://r.jina.ai/http://x.com/iAndres_Soto' || echo '')"
+          RAW_TW="$(curl -fsSL 'https://r.jina.ai/http://twitter.com/iAndres_Soto' || echo '')"
+          RAW_NT="$(curl -fsSL 'https://r.jina.ai/http://nitter.net/iandres_soto' || echo '')"
 
-          # 1) intenta absoluto (https://nitter.net/iandres_soto/status/123)
-          TWEET=$(printf '%s' "$RAW_TW" \
-            | grep -oE 'https://nitter\.net/iandres_soto/status/[0-9]+' \
-            | head -n1 || true)
+          # Mezcla todo para aumentar chances
+          RAW_ALL="${RAW_X}
+          ${RAW_TW}
+          ${RAW_NT}"
 
-          # 2) si no hay, intenta relativo (/iandres_soto/status/123)
+          # 1) absoluto x.com
+          TWEET="$(printf '%s' "$RAW_ALL" \
+            | grep -oEi 'https?://x\.com/[A-Za-z0-9_]+/status/[0-9]+' \
+            | head -n1 || true)"
+
+          # 2) absoluto twitter.com si no hubo x.com
           if [ -z "${TWEET:-}" ]; then
-            REL=$(printf '%s' "$RAW_TW" \
-              | grep -oE '/iandres_soto/status/[0-9]+' \
-              | head -n1 || true)
-            if [ -n "$REL" ]; then
+            TWEET="$(printf '%s' "$RAW_ALL" \
+              | grep -oEi 'https?://(www\.)?twitter\.com/[A-Za-z0-9_]+/status/[0-9]+' \
+              | head -n1 || true)"
+          fi
+
+          # 3) relativo /Usuario/status/ID (por si el HTML trae paths relativos)
+          if [ -z "${TWEET:-}" ]; then
+            REL="$(printf '%s' "$RAW_ALL" \
+              | grep -oEi '/[A-Za-z0-9_]+/status/[0-9]+' \
+              | head -n1 || true)"
+            if [ -n "${REL:-}" ]; then
               TWEET="https://twitter.com${REL}"
             fi
-          else
-            # convertir nitter -> twitter
-            TWEET="${TWEET/https:\/\/nitter.net\//https:\/\/twitter.com/}"
+          fi
+
+          # 4) nitter absoluto (por si solo aparece ese)
+          if [ -z "${TWEET:-}" ]; then
+            NIT="$(printf '%s' "$RAW_ALL" \
+              | grep -oEi 'https?://nitter\.net/[A-Za-z0-9_]+/status/[0-9]+' \
+              | head -n1 || true)"
+            if [ -n "${NIT:-}" ]; then
+              TWEET="$NIT"
+            fi
+          fi
+
+          # Normaliza siempre a twitter.com (Twitframe lo prefiere)
+          if [ -n "${TWEET:-}" ]; then
+            TWEET="$(printf '%s' "$TWEET" \
+              | sed -E 's#^https?://x\.com/#https://twitter.com/#I' \
+              | sed -E 's#^https?://nitter\.net/#https://twitter.com/#I')"
           fi
 
           echo "TIKTOK: $TIKTOK"
           echo "TWEET : $TWEET"
 
-          # Generar JSON (aunque alguno venga vacío)
+          # Genera JSON aunque alguno esté vacío
           TIKTOK_SAFE=${TIKTOK//\"/\\\"}
           TWEET_SAFE=${TWEET//\"/\\\"}
           printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
-
-          echo "latest.json:"
-          cat data/latest.json
+          echo "latest.json:"; cat data/latest.json
 
       - name: Commit & push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
