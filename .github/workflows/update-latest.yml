@@ -2,8 +2,8 @@ name: Update latest social posts
 
 on:
   schedule:
-    - cron: '*/30 * * * *'        # cada 30 minutos
-  workflow_dispatch: {}            # permite ejecutarlo a mano desde Actions
+    - cron: '*/30 * * * *'
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -15,64 +15,86 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet (sin API, estable)
+      - name: Fetch latest TikTok & Tweet (robusto: Nitter RSS -> HTML fallback)
         shell: bash
         run: |
-          # No usamos -e para que algún 422/500 no rompa el job
           set -uo pipefail
           mkdir -p data
 
           # === CONFIG ===
-          TT_USER='andrewtvi'       # tu usuario en TikTok (sin @)
-          TW_USER='iAndres_Soto'    # tu usuario en X/Twitter (sin @)
+          TT_USER='andrewtvi'        # TikTok (sin @)
+          TW_USER='iandres_soto'     # X/Twitter en MINÚSCULAS (sin @)
 
           sudo apt-get update -y >/dev/null
           sudo apt-get install -y jq curl >/dev/null
 
-          # Helper: descarga JSON con reintentos (si falla, devuelve {})
-          json_get () {
-            local url="$1"
-            curl -sSL --retry 2 --retry-delay 1 --fail "$url" 2>/dev/null || printf '{}'
+          json_get () { curl -sSL --retry 2 --retry-delay 1 --fail "$1" 2>/dev/null || printf '{}'; }
+
+          ##### TIKTOK (RSS -> fallback HTML)
+          TT_JSON="$(json_get "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Ftiktok%2Fuser%2F${TT_USER}")"
+          TIKTOK="$(echo "$TT_JSON" | jq -r 'if (.items|type=="array" and (.items|length)>0 and (.items[0].link|type=="string")) then .items[0].link else empty end' 2>/dev/null || true)"
+          if [ -z "${TIKTOK:-}" ]; then
+            RAW_TT="$(curl -sSL "https://r.jina.ai/http://www.tiktok.com/@${TT_USER}" 2>/dev/null || true)"
+            TIKTOK="$(printf '%s' "$RAW_TT" | grep -oiE "https://www\.tiktok\.com/@${TT_USER}/video/[0-9]+" | head -n1 || true)"
+          fi
+
+          ##### TWITTER / X (Nitter RSS -> HTML fallback)
+          find_tweet_from_html () {
+            local user_lc="$1"
+            local html="$2"
+            # 1) Enlaces /<user>/status/<id>
+            local url
+            url="$(printf '%s' "$html" | grep -oiE "https?://(x|twitter)\.com/${user_lc}/status/[0-9]+" | head -n1 || true)"
+            if [ -n "$url" ]; then
+              echo "${url/https:\/\/x.com/https:\/\/twitter.com}"
+              return 0
+            fi
+            # 2) ID crudo "tweetId":"123..."
+            local id
+            id="$(printf '%s' "$html" | grep -oE '"tweetId":"[0-9]+' | head -n1 | sed -E 's/^"tweetId":"//' || true)"
+            if [ -n "$id" ]; then
+              echo "https://twitter.com/${user_lc}/status/${id}"
+              return 0
+            fi
+            return 1
           }
 
-          ##### TIKTOK (RSS -> fallback scrape)
-          TT_JSON="$(json_get "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Ftiktok%2Fuser%2F${TT_USER}")"
-          TIKTOK="$(echo "$TT_JSON" | jq -r '
-            if (.items|type=="array" and (.items|length)>0 and (.items[0].link|type=="string"))
-              then .items[0].link else empty end
-          ' 2>/dev/null || printf '')"
+          TW_URL=""
+          # Mirrors Nitter (agrega/quita si alguno cae)
+          MIRRORS=(
+            "https://nitter.net"
+            "https://nitter.pufe.org"
+            "https://nitter.fdn.fr"
+            "https://nitter.hu"
+            "https://nitter.lacontrevoie.fr"
+          )
+          for base in "${MIRRORS[@]}"; do
+            RSS_URL="${base}/${TW_USER}/rss"
+            RSS="$(curl -sSL --retry 2 --retry-delay 1 --fail "$RSS_URL" 2>/dev/null || true)"
+            if [ -n "$RSS" ]; then
+              # ejemplo: <link>https://nitter.net/usuario/status/123...</link>
+              LINK="$(printf '%s' "$RSS" | grep -oE "<link>https?://[^<]*/status/[0-9]+</link>" | head -n1 | sed -E 's#</?link>##g' || true)"
+              if [ -n "$LINK" ]; then
+                # Normaliza a twitter.com
+                TW_URL="$(printf '%s' "$LINK" | sed -E 's#https?://[^/]*/#https://twitter.com/#')"
+                break
+              fi
+            fi
+          done
 
-          # Fallback: scrapping del HTML via r.jina.ai (toma el primer video propio)
-          if [ -z "$TIKTOK" ]; then
-            RAW_TT="$(curl -sSL "https://r.jina.ai/http://www.tiktok.com/@${TT_USER}" 2>/dev/null || true)"
-            TIKTOK="$(printf '%s' "$RAW_TT" \
-              | grep -oE "https://www\.tiktok\.com/@${TT_USER}/video/[0-9]+" \
-              | head -n1 || true)"
+          if [ -z "${TW_URL:-}" ]; then
+            RAW_TW="$(curl -sSL "https://r.jina.ai/http://x.com/${TW_USER}" 2>/dev/null || true)"
+            TW_URL="$(find_tweet_from_html "${TW_USER}" "${RAW_TW}" || true)"
           fi
 
-          ##### TWITTER / X (último tweet propio, sin RT)
-          # Pedimos la página estática via r.jina.ai y extraemos el primer status del propio usuario
-          RAW_TW="$(curl -sSL "https://r.jina.ai/http://x.com/${TW_USER}" 2>/dev/null || true)"
-          TWEET_URL="$(printf '%s' "$RAW_TW" \
-            | grep -oE "https://(x|twitter)\.com/${TW_USER}/status/[0-9]+" \
-            | head -n1 || true)"
+          TWEET="$TW_URL"
 
-          # Normaliza dominio x.com -> twitter.com
-          if [ -n "${TWEET_URL:-}" ]; then
-            TWEET="${TWEET_URL//https:\/\/x.com/https:\/\/twitter.com}"
-          else
-            TWEET=""
-          fi
-
-          # === Salida y guardado en JSON (escapando comillas) ===
           echo "TIKTOK: ${TIKTOK:-<vacío>}"
           echo "TWEET : ${TWEET:-<vacío>}"
 
           TIKTOK_SAFE=${TIKTOK//\"/\\\"}
           TWEET_SAFE=${TWEET//\"/\\\"}
           printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
-
-          echo "latest.json:"
           cat data/latest.json
 
       - name: Commit & push if changed
