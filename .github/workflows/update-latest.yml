@@ -15,17 +15,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 'Fetch latest TikTok & Tweet (robusto - RSS -> fallback scrape, solo propios)'
+      - name: 'Fetch latest TikTok & Tweet (robusto - RSS -> snscrape, solo propios)'
         shell: bash
         run: |
           # No usamos -e para que 422/500 no rompan el job
           set -uo pipefail
           mkdir -p data
 
-          USER_RX='iAndres_Soto'   # tu @ en X/Twitter
+          USER_RX='iAndres_Soto'   # tu @ en X/Twitter (ojo con mayúsculas/minúsculas en la URL final)
+          USER_LOWER="$(echo "$USER_RX" | tr '[:upper:]' '[:lower:]')"  # para búsquedas si hiciera falta
 
           sudo apt-get update -y >/dev/null
-          sudo apt-get install -y jq curl >/dev/null
+          sudo apt-get install -y jq curl python3-pip >/dev/null
+          python3 -m pip install --upgrade pip >/dev/null
+          python3 -m pip install snscrape >/dev/null
 
           # Descarga JSON con reintentos; si falla, devuelve {}
           json_get () {
@@ -49,38 +52,25 @@ jobs:
               | head -n1 || true)"
           fi
 
-          ####### TWITTER/X (solo TUS tweets) #######
-          # 1) RSS vía Nitter, filtrando solo propios (sin RT/likes/replies)
-          TW_JSON="$(json_get 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnitter.net%2Fiandres_soto%2Frss')"
-          TWEET="$(echo "$TW_JSON" | jq -r '
-            if (.items|type=="array") then
-              ( [ .items[]
-                  | select(.link|type=="string" and (.link|test("/'"$USER_RX"'/status/"; "i")))
-                  | select(.title|type=="string")
-                  | select((.title|test("^RT @"; "i")|not)
-                           and (.title|test("(^|\\b)(like|liked|likes|replying to|replied to)\\b"; "i")|not))
-                ] | if length>0 then .[0].link else empty end )
-            else empty end
-          ' 2>/dev/null || printf '')"
+          ####### TWITTER/X (solo tus tweets) con snscrape #######
+          # Filtra "from:USER exclude:retweets exclude:replies" y toma el más reciente
+          TWEET_ID="$(snscrape --jsonl --max-results 1 "from:${USER_RX} exclude:retweets exclude:replies" \
+                      | jq -r '.id' | head -n1 2>/dev/null || true)"
 
-          # Normaliza nitter -> twitter
-          if [ -n "${TWEET:-}" ]; then
-            TWEET="$(printf '%s' "$TWEET" \
-              | sed -E 's#^https?://nitter\.net/#https://twitter.com/#I')"
-          fi
-
-          # 2) Fallback scrape (x.com / twitter.com) SOLO de tu usuario
-          if [ -z "${TWEET:-}" ]; then
-            RAW_X="$(curl -sSL "https://r.jina.ai/http://x.com/$USER_RX" 2>/dev/null || true)"
-            RAW_TW="$(curl -sSL "https://r.jina.ai/http://twitter.com/$USER_RX" 2>/dev/null || true)"
+          if [ -n "${TWEET_ID:-}" ]; then
+            TWEET="https://twitter.com/${USER_RX}/status/${TWEET_ID}"
+          else
+            # Fallback scrape (x.com/twitter.com) SOLO del usuario
+            RAW_X="$(curl -sSL "https://r.jina.ai/http://x.com/${USER_RX}" 2>/dev/null || true)"
+            RAW_TW="$(curl -sSL "https://r.jina.ai/http://twitter.com/${USER_RX}" 2>/dev/null || true)"
             RAW_ALL="$(printf '%s\n%s' "$RAW_X" "$RAW_TW")"
 
             ALL_SELF="$(printf '%s' "$RAW_ALL" \
-              | grep -oEi "https?://(x\.com|twitter\.com)/$USER_RX/status/[0-9]+" \
+              | grep -oEi "https?://(x\.com|twitter\.com)/${USER_RX}/status/[0-9]+" \
               | sed -E 's#^https?://x\.com/#https://twitter.com/#I' \
               | sort -u)"
 
-            # Toma el primero (el más alto en la página; suele ser el más reciente no fijado)
+            # El primero que aparezca (normalmente el más arriba en la página)
             TWEET="$(echo "$ALL_SELF" | sed -n '1p' || true)"
           fi
 
