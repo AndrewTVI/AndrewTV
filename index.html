@@ -6,7 +6,13 @@
   <title>@AndrewTVI | Links</title>
   <meta name="description" content="Links y posts recientes." />
   <meta name="theme-color" content="#b8a3ff" />
+
+  <!-- Favicons (con fallbacks) -->
   <link rel="icon" href="favicon.webp" type="image/webp" />
+  <link rel="icon" href="favicon.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -59,9 +65,7 @@
       min-width:120px; text-align:center;
     }
     .tab[aria-selected="true"]{box-shadow:var(--glow)}
-    .tab[aria-disabled="true"]{
-      opacity:.45; cursor:not-allowed; filter:grayscale(40%);
-    }
+    .tab[aria-disabled="true"]{opacity:.45; cursor:not-allowed; filter:grayscale(40%)}
 
     section{padding:14px}
 
@@ -79,12 +83,11 @@
     .item:hover{transform:translateY(-2px); box-shadow:var(--glow)}
     .item:active,.item:focus-visible{transform:translateY(0); box-shadow:var(--glow)}
 
-    /* Íconos en los botones (más grandes y sin contorno) */
-    .icon { width:auto; height:auto; display:grid; place-items:center; background:none; border:none; border-radius:0; padding:0; }
-    .icon img { width:36px; height:36px; display:block; }
-
-    /* OPCIONAL: borde ajustado alrededor del icono: usa class="icon icon-bordered" si lo quieres */
-    .icon.icon-bordered img { border:1px solid var(--border); border-radius:10px; }
+    /* Iconos sin contorno (grandes) */
+    .icon{width:auto;height:auto;display:grid;place-items:center;background:none;border:none;border-radius:0;padding:0}
+    .icon img{width:36px;height:36px;display:block}
+    /* Opcional: borde alrededor del icono, usa class="icon icon-bordered" si lo quieres */
+    .icon.icon-bordered img{border:1px solid var(--border);border-radius:10px}
 
     .label{font-weight:800}
 
@@ -151,19 +154,15 @@
     <!-- POSTS -->
     <section id="panel-posts" role="tabpanel" aria-labelledby="tab-posts" hidden>
       <div class="grid">
-        <!-- Instagram -->
         <article class="card"><h3>Instagram</h3>
           <div class="slot" id="ig-slot"></div>
         </article>
-        <!-- YouTube -->
         <article class="card"><h3>YouTube</h3>
           <div class="slot slot16x9"><iframe id="yt-embed" allowfullscreen></iframe></div>
         </article>
-        <!-- X / Twitter -->
         <article class="card"><h3>Tweet</h3>
           <div class="slot" id="tw-slot" style="padding:0 8px; width:100%; min-height:260px"><div class="empty">Cargando tweet…</div></div>
         </article>
-        <!-- TikTok -->
         <article class="card"><h3>TikTok</h3>
           <div class="slot slot16x9" id="tt-slot"><div class="empty">Cargando TikTok…</div></div>
         </article>
@@ -195,8 +194,7 @@
     const CONFIG = {
       youtubeChannelId: "UCiDZC35tuPSR65J88ALn7zg",
       instagramWidget: "<div class='elfsight-app-bcfa254f-d2c9-4100-b02e-75a673307e59' data-elfsight-app-lazy></div>",
-      // ⬇️ Worker que ya probaste (devuelve { tweet: "https://x.com/..." })
-      workerUrl: "https://mute-leaf-ae49.andreshs2019.workers.dev",
+      workerUrl: "https://mute-leaf-ae49.andreshs2019.workers.dev", // tu Worker de Twitter
       twitterUser: "iandres_soto",
       tiktokJson: "data/latest.json"
     };
@@ -236,30 +234,25 @@
       document.getElementById('ig-slot').innerHTML = CONFIG.instagramWidget;
     }
 
+    // Helpers para normalizar URLs
+    const canonTweet = (u)=> u ? u.replace("mobile.twitter.com","x.com").replace("twitter.com","x.com").split("?")[0] : "";
+    const canonTikTok = (u)=> u ? u.split("?")[0] : "";
+
     // Twitter via Worker
     async function loadTweet(){
       try{
-        // Permite tanto worker base como uno que acepte ?tw_user=
-        const hasQuery = CONFIG.workerUrl.includes("?");
-        const url = hasQuery
-          ? CONFIG.workerUrl
-          : `${CONFIG.workerUrl}?tw_user=${encodeURIComponent(CONFIG.twitterUser)}`;
-
-        const resp = await fetch(url, { cache: "no-store" });
-        const data = await resp.json().catch(()=>null);
-
-        const link = data && data.tweet ? String(data.tweet) : "";
+        const url = `${CONFIG.workerUrl}?tw_user=${encodeURIComponent(CONFIG.twitterUser)}`;
+        const data = await fetch(url, { cache:"no-store" }).then(r=>r.json());
+        const link = canonTweet(data?.tweet || "");
         const slot = document.getElementById('tw-slot');
 
-        if (link) {
+        if (link){
           slot.innerHTML = `<blockquote class="twitter-tweet"><a href="${link}"></a></blockquote>`;
-
-          // Carga widgets.js sólo una vez
-          if (!window.twttr || !window.twttr.widgets) {
-            const s = document.createElement('script');
-            s.src = 'https://platform.twitter.com/widgets.js';
-            s.async = true;
-            s.onload = () => window.twttr && window.twttr.widgets && window.twttr.widgets.load();
+          if (!window.twttr || !window.twttr.widgets){
+            const s=document.createElement('script');
+            s.src='https://platform.twitter.com/widgets.js';
+            s.async=true;
+            s.onload=()=>window.twttr && window.twttr.widgets && window.twttr.widgets.load();
             document.body.appendChild(s);
           } else {
             window.twttr.widgets.load();
@@ -267,7 +260,7 @@
         } else {
           slot.innerHTML = `<div class="empty">No se pudo obtener tweet.</div>`;
         }
-      } catch(e){
+      }catch(e){
         document.getElementById('tw-slot').innerHTML = `<div class="empty">Error cargando tweet.</div>`;
       }
     }
@@ -277,7 +270,7 @@
     async function loadTikTok(){
       try{
         const j = await fetch(CONFIG.tiktokJson, { cache:"no-store" }).then(r=>r.json()).catch(()=>({}));
-        const link = j?.tiktok || "";
+        const link = canonTikTok(j?.tiktok || "");
         const tt = document.getElementById('tt-slot');
         if (link){
           tt.innerHTML = `<blockquote class='tiktok-embed' cite='${link}' style='max-width:605px;min-width:325px'><section><a href='${link}'></a></section></blockquote>`;
