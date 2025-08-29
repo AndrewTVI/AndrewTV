@@ -291,59 +291,84 @@ async function loadTweet(){
 }
 
 // ========== TikTok desde JSON (con doble fallback) ==========
+<script>
 async function loadTikTok(){
   const slot = document.getElementById('tt-slot');
-  try{
-    const j    = await fetch(CONFIG.tiktokJson, { cache:"no-store" }).then(r=>r.json()).catch(()=> ({}));
-    const link = canonTikTok(j?.tiktok || "");
 
-    if (!link) {
+  // helper: asegura URL limpia
+  const canonTikTok = (u)=> u ? u.split('?')[0] : "";
+  // helper: saca el ID numérico /video/1234567890123456789
+  const extractTikTokId = (u)=>{
+    const m = (u||"").match(/\/video\/(\d+)/);
+    return m ? m[1] : "";
+  };
+
+  try{
+    // 0) lee tu JSON
+    const j    = await fetch(CONFIG.tiktokJson, { cache:"no-store" })
+                      .then(r=>r.json())
+                      .catch(()=> ({}));
+    const link = canonTikTok(j?.tiktok || "");
+    if (!link){
       slot.innerHTML = `<div class="empty">No se pudo obtener TikTok.</div>`;
       return;
     }
 
-    // 1) Embed oficial
-    slot.innerHTML = `
-      <blockquote class="tiktok-embed" cite="${link}" style="max-width:605px;min-width:325px">
-        <section><a href="${link}"></a></section>
-      </blockquote>`;
-    const s = document.createElement('script');
-    s.src   = 'https://www.tiktok.com/embed.js';
-    s.async = true;
-    document.body.appendChild(s);
-
-    // 2) Si no carga, intentamos iframe directo con el ID
-    setTimeout(() => {
-      const ok = slot.querySelector('iframe');
-      if (!ok) {
-        const id = extractTikTokId(link);
-        if (id) {
-          slot.innerHTML = `
-            <iframe src="https://www.tiktok.com/embed/v2/${id}" allowfullscreen
-                    style="width:100%;height:100%;min-height:360px;border:0"></iframe>`;
+    // 1) oEmbed oficial (blockquote)
+    try {
+      const o = await fetch(
+        `https://www.tiktok.com/oembed?url=${encodeURIComponent(link)}`,
+        { cache: "no-store" }
+      ).then(r => r.ok ? r.json() : Promise.reject(new Error('oembed fail')));
+      
+      if (o?.html) {
+        slot.innerHTML = o.html;
+        if (!document.querySelector('script[src*="tiktok.com/embed.js"]')) {
+          const s=document.createElement('script');
+          s.src='https://www.tiktok.com/embed.js';
+          s.async=true;
+          document.body.appendChild(s);
         }
+        setTimeout(() => {
+          const ok = slot.querySelector('iframe');
+          if (ok) return;
+          throw new Error('oembed-render-failed');
+        }, 1800);
+      } else {
+        throw new Error('oembed-no-html');
       }
-    }, 2200);
+    } catch (_) {}
 
-    // 3) Si tampoco, dejamos un botón que abre el video
-    setTimeout(() => {
-      const ok2 = slot.querySelector('iframe');
-      if (!ok2) {
-        slot.innerHTML = `
-          <div class="empty" style="display:grid;place-items:center;gap:12px;padding:28px">
-            <div>El embed de TikTok no está disponible ahora.</div>
-            <a class="item" href="${link}" target="_blank" rel="noopener"
-               style="max-width:360px;text-decoration:none">
-              <span class="label">Ver en TikTok</span>
-            </a>
-          </div>`;
-      }
-    }, 3800);
+    // 2) Fallback con iframe v2
+    const id = extractTikTokId(link);
+    if (id) {
+      slot.innerHTML = `
+        <iframe
+          src="https://www.tiktok.com/embed/v2/${id}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          loading="lazy"
+          style="width:100%;height:100%;min-height:420px;border:0;border-radius:12px;overflow:hidden"
+          allowfullscreen>
+        </iframe>`;
+      return;
+    }
 
-  } catch (e) {
+    // 3) Último recurso: miniatura + botón
+    slot.innerHTML = `
+      <div class="empty" style="display:grid;place-items:center;gap:12px;padding:28px">
+        <div>El embed de TikTok no está disponible ahora.</div>
+        <a class="item" href="${link}" target="_blank" rel="noopener"
+           style="max-width:360px;text-decoration:none">
+          <span class="label">Ver en TikTok</span>
+        </a>
+      </div>`;
+  } catch (e){
     slot.innerHTML = `<div class="empty">Error cargando TikTok.</div>`;
   }
 }
+</script>
+
 
 // Ejecuta ambas
 loadTweet();
