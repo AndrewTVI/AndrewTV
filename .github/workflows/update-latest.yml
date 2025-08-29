@@ -2,11 +2,11 @@ name: Update latest social posts
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # cada 30 minutos
-  workflow_dispatch: {}       # ejecutarlo manualmente
+    - cron: '*/30 * * * *'       # cada 30 minutos
+  workflow_dispatch: {}           # ejecución manual
 
 permissions:
-  contents: write             # necesario para hacer commit al repo
+  contents: write                 # necesario para commit
 
 jobs:
   update:
@@ -15,29 +15,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet (rss2json + jq)
+      - name: Fetch latest TikTok & Tweet via r.jina.ai (robusto)
         shell: bash
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           mkdir -p data
 
-          sudo apt-get update -y
-          sudo apt-get install -y jq
+          # 1) Último TikTok: usamos el fetcher de sólo lectura r.jina.ai
+          #    y extraemos el primer enlace /video/ del usuario.
+          TIKTOK_PAGE_URL="https://r.jina.ai/http://www.tiktok.com/@andrewtvi"
+          TIKTOK=$(curl -fsSL "$TIKTOK_PAGE_URL" \
+            | grep -oE "https://www\.tiktok\.com/@andrewtvi/video/[0-9]+" \
+            | head -n1 || true)
 
-          # Pedimos JSON ya parseado desde rss2json (evitamos XML / xmllint)
-          TIKTOK_JSON="$(curl -fsSL 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Ftiktok%2Fuser%2Fandrewtvi' || echo '{}')"
-          TWEET_JSON="$(curl -fsSL 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnitter.net%2Fiandres_soto%2Frss' || echo '{}')"
-
-          TIKTOK="$(echo "$TIKTOK_JSON" | jq -r '.items[0].link // empty')"
-          TWEET_NITTER="$(echo "$TWEET_JSON" | jq -r '.items[0].link // empty')"
+          # 2) Último Tweet: miramos Nitter "renderizado" y convertimos a twitter.com
+          NITTER_PAGE_URL="https://r.jina.ai/http://nitter.net/iandres_soto"
+          TWEET_NITTER=$(curl -fsSL "$NITTER_PAGE_URL" \
+            | grep -oE "https://nitter\.net/iandres_soto/status/[0-9]+" \
+            | head -n1 || true)
           TWEET="${TWEET_NITTER/https:\/\/nitter.net\//https:\/\/twitter.com/}"
 
-          # Escapar comillas simples para JSON
-          TIKTOK_SAFE="${TIKTOK//\"/\\\"}"
-          TWEET_SAFE="${TWEET//\"/\\\"}"
+          echo "TIKTOK: $TIKTOK"
+          echo "TWEET : $TWEET"
 
+          # Generar JSON (aunque vengan vacíos, para que siempre haya archivo)
+          TIKTOK_SAFE=${TIKTOK//\"/\\\"}
+          TWEET_SAFE=${TWEET//\"/\\\"}
           printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
-          echo "latest.json generado:"
+
+          echo "latest.json:"
           cat data/latest.json
 
       - name: Commit & push if changed
