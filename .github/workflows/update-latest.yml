@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet (robusto: RSS → fallback scrape, solo propios)
+      - name: 'Fetch latest TikTok & Tweet (robusto - RSS -> fallback scrape, solo propios)'
         shell: bash
         run: |
           # No usamos -e para que 422/500 no rompan el job
@@ -63,7 +63,7 @@ jobs:
             else empty end
           ' 2>/dev/null || printf '')"
 
-          # Normaliza nitter → twitter
+          # Normaliza nitter -> twitter
           if [ -n "${TWEET:-}" ]; then
             TWEET="$(printf '%s' "$TWEET" \
               | sed -E 's#^https?://nitter\.net/#https://twitter.com/#I')"
