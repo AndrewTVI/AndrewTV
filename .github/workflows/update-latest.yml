@@ -15,6 +15,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # <<< NUEVO: fuerza Python 3.11 para snscrape >>>
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: 'Fetch latest TikTok & Tweet (robusto - RSS -> snscrape, solo propios)'
         shell: bash
         run: |
@@ -22,13 +28,15 @@ jobs:
           set -uo pipefail
           mkdir -p data
 
-          USER_RX='iAndres_Soto'   # tu @ en X/Twitter (ojo con mayúsculas/minúsculas en la URL final)
-          USER_LOWER="$(echo "$USER_RX" | tr '[:upper:]' '[:lower:]')"  # para búsquedas si hiciera falta
+          USER_RX='iAndres_Soto'   # tu @ en X/Twitter
+          USER_LOWER="$(echo "$USER_RX" | tr '[:upper:]' '[:lower:]')"
 
           sudo apt-get update -y >/dev/null
-          sudo apt-get install -y jq curl python3-pip >/dev/null
-          python3 -m pip install --upgrade pip >/dev/null
-          python3 -m pip install snscrape >/dev/null
+          sudo apt-get install -y jq curl >/dev/null
+
+          python -m pip install --upgrade pip >/dev/null
+          # snscrape estable con Py3.11
+          python -m pip install "snscrape>=0.7.0" >/dev/null
 
           # Descarga JSON con reintentos; si falla, devuelve {}
           json_get () {
@@ -53,7 +61,6 @@ jobs:
           fi
 
           ####### TWITTER/X (solo tus tweets) con snscrape #######
-          # Filtra "from:USER exclude:retweets exclude:replies" y toma el más reciente
           TWEET_ID="$(snscrape --jsonl --max-results 1 "from:${USER_RX} exclude:retweets exclude:replies" \
                       | jq -r '.id' | head -n1 2>/dev/null || true)"
 
@@ -70,7 +77,6 @@ jobs:
               | sed -E 's#^https?://x\.com/#https://twitter.com/#I' \
               | sort -u)"
 
-            # El primero que aparezca (normalmente el más arriba en la página)
             TWEET="$(echo "$ALL_SELF" | sed -n '1p' || true)"
           fi
 
