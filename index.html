@@ -78,8 +78,33 @@
     }
     .item:hover{transform:translateY(-2px); box-shadow:var(--glow)}
     .item:active,.item:focus-visible{transform:translateY(0); box-shadow:var(--glow)}
-    .icon{width:44px; height:44px; display:grid; place-items:center; border-radius:14px; background:rgba(255,255,255,.12); border:1px solid var(--border)}
-    .icon img{width:26px; height:26px; display:block}
+/* Íconos en los botones */
+.icon {
+  width: auto; 
+  height: auto; 
+  display: grid; 
+  place-items: center; 
+  background: none;       /* 🔥 sin fondo */
+  border: none;           /* 🔥 sin borde */
+  border-radius: 0;       /* 🔥 sin esquinas redondeadas */
+  padding: 0;
+}
+
+.icon img {
+  width: 36px;   /* 🔥 tamaño del icono más grande */
+  height: 36px; 
+  display: block;
+}
+
+/* OPCIONAL: Íconos con borde ajustado */
+.icon-bordered img {
+  width: 36px;
+  height: 36px;
+  display: block;
+  border: 1px solid var(--border); /* 🔲 borde al rededor del icono */
+  border-radius: 10px;             /* 🔲 esquinas redondeadas opcionales */
+}
+
     .label{font-weight:800}
 
     /* POSTS */
