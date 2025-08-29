@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet (RSS primero, scrape fallback)
+      - name: Fetch latest TikTok & Tweet (RSS primero, scrape fallback, solo propios)
         shell: bash
         run: |
           set -euo pipefail
@@ -24,12 +24,12 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y jq curl
 
-          ######### TIKTOK #########
-          # 1) RSS (preferido)
+          ####### TIKTOK #######
+          # 1) RSS preferido
           TT_JSON="$(curl -fsSL 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Ftiktok%2Fuser%2Fandrewtvi' || echo '{}')"
           TIKTOK="$(echo "$TT_JSON" | jq -r '.items[0].link // empty')"
 
-          # 2) Fallback: scrape (r.jina.ai)
+          # 2) Fallback scrape (por si el RSS viene vacío)
           if [ -z "$TIKTOK" ]; then
             RAW_TT="$(curl -fsSL 'https://r.jina.ai/http://www.tiktok.com/@andrewtvi' || echo '')"
             TIKTOK="$(printf '%s' "$RAW_TT" \
@@ -37,18 +37,31 @@ jobs:
               | head -n1 || true)"
           fi
 
-          ######### TWITTER/X #########
-          # 1) RSS via Nitter (preferido) — suele venir sin "pinned"
+          ####### TWITTER/X (solo propios) #######
+          USER_RX='iAndres_Soto'   # tu @ en X/Twitter (case-insensitive)
+          
+          # 1) RSS via Nitter → filtra:
+          #    - que el link sea /<tu_usuario>/status/...
+          #    - que el título NO empiece con RT @
+          #    - que NO contenga like/liked/replying/replied
           TW_JSON="$(curl -fsSL 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnitter.net%2Fiandres_soto%2Frss' || echo '{}')"
-          TWEET="$(echo "$TW_JSON" | jq -r '.items[0].link // empty')"
+          TWEET="$(echo "$TW_JSON" | jq -r '
+            [
+              .items[] 
+              | select(.link|test("/'"$USER_RX"'/status/"; "i")) 
+              | select(.title|test("^RT @"; "i")|not)
+              | select(.title|test("(^|\\b)(like|liked|likes|replying to|replied to)\\b"; "i")|not)
+            ]
+            | .[0].link // empty
+          ')"
 
-          # Normaliza si vino de Nitter
+          # Normaliza nitter → twitter
           if [ -n "$TWEET" ]; then
             TWEET="$(printf '%s' "$TWEET" \
               | sed -E 's#^https?://nitter\.net/#https://twitter.com/#I')"
           fi
 
-          # 2) Fallback: scrape combinado (x.com + twitter.com + nitter)
+          # 2) Fallback scrape si el RSS falló (x.com / twitter.com / nitter)
           if [ -z "$TWEET" ]; then
             RAW_X="$(curl -fsSL 'https://r.jina.ai/http://x.com/iAndres_Soto' || echo '')"
             RAW_TW="$(curl -fsSL 'https://r.jina.ai/http://twitter.com/iAndres_Soto' || echo '')"
@@ -57,23 +70,20 @@ jobs:
             ${RAW_TW}
             ${RAW_NT}"
 
-            # Extrae TODOS los status y normaliza a twitter.com
-            ALL_TWEETS="$(printf '%s' "$RAW_ALL" \
-              | grep -oEi 'https?://(x\.com|twitter\.com|nitter\.net)/[A-Za-z0-9_]+/status/[0-9]+' \
+            # Extrae SOLO status de TU usuario
+            ALL_SELF="$(printf '%s' "$RAW_ALL" \
+              | grep -oEi 'https?://(x\.com|twitter\.com|nitter\.net)/'"$USER_RX"'/status/[0-9]+' \
               | sed -E 's#^https?://x\.com/#https://twitter.com/#I; s#^https?://nitter\.net/#https://twitter.com/#I' \
               | sort -u)"
 
-            # Intenta saltar el pinned: toma el 2º si existe, si no, el 1º
-            TWEET="$(echo "$ALL_TWEETS" | sed -n '2p' || true)"
-            if [ -z "$TWEET" ]; then
-              TWEET="$(echo "$ALL_TWEETS" | sed -n '1p' || true)"
-            fi
+            # Toma el más alto en la lista (normalmente el más reciente que aparece)
+            TWEET="$(echo "$ALL_SELF" | sed -n '1p' || true)"
           fi
 
           echo "TIKTOK: $TIKTOK"
           echo "TWEET : $TWEET"
 
-          # Genera JSON (aunque alguno esté vacío)
+          # Genera JSON (aunque alguno venga vacío)
           TIKTOK_SAFE=${TIKTOK//\"/\\\"}
           TWEET_SAFE=${TWEET//\"/\\\"}
           printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
