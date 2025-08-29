@@ -2,11 +2,11 @@ name: Update latest social posts
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch: {}
+    - cron: '*/30 * * * *'      # cada 30 minutos
+  workflow_dispatch: {}          # ejecutable manualmente
 
 permissions:
-  contents: write
+  contents: write                # necesario para poder commitear
 
 jobs:
   update:
