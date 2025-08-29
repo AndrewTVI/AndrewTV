@@ -2,11 +2,11 @@ name: Update latest social posts
 
 on:
   schedule:
-    - cron: '*/30 * * * *'      # cada 30 minutos
-  workflow_dispatch: {}          # ejecutable manualmente
+    - cron: '*/30 * * * *'        # cada 30 min
+  workflow_dispatch: {}            # ejecútalo a mano desde Actions
 
 permissions:
-  contents: write                # necesario para poder commitear
+  contents: write
 
 jobs:
   update:
@@ -15,44 +15,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # <<< NUEVO: fuerza Python 3.11 para snscrape >>>
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: 'Fetch latest TikTok & Tweet (robusto - RSS -> snscrape, solo propios)'
+      - name: Fetch latest TikTok & Tweet (robusto - RSS -> snscrape, solo propios)
         shell: bash
         run: |
-          # No usamos -e para que 422/500 no rompan el job
+          # No usamos -e para que un 422/500 no rompa el job
           set -uo pipefail
           mkdir -p data
 
           USER_RX='iAndres_Soto'   # tu @ en X/Twitter
-          USER_LOWER="$(echo "$USER_RX" | tr '[:upper:]' '[:lower:]')"
 
           sudo apt-get update -y >/dev/null
           sudo apt-get install -y jq curl >/dev/null
 
           python -m pip install --upgrade pip >/dev/null
-          # snscrape estable con Py3.11
           python -m pip install "snscrape>=0.7.0" >/dev/null
 
-          # Descarga JSON con reintentos; si falla, devuelve {}
+          # Helper: descarga JSON con reintentos (si falla, devuelve {})
           json_get () {
             local url="$1"
             curl -sSL --retry 2 --retry-delay 1 --fail "$url" 2>/dev/null || printf '{}'
           }
 
-          ####### TIKTOK #######
-          # 1) RSS preferido
+          ##### TIKTOK (RSS -> fallback scrape)
           TT_JSON="$(json_get 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Ftiktok%2Fuser%2Fandrewtvi')"
           TIKTOK="$(echo "$TT_JSON" | jq -r '
             if (.items|type=="array" and (.items|length)>0 and (.items[0].link|type=="string"))
               then .items[0].link else empty end
           ' 2>/dev/null || printf '')"
 
-          # 2) Fallback scrape
           if [ -z "$TIKTOK" ]; then
             RAW_TT="$(curl -sSL 'https://r.jina.ai/http://www.tiktok.com/@andrewtvi' 2>/dev/null || true)"
             TIKTOK="$(printf '%s' "$RAW_TT" \
@@ -60,30 +55,31 @@ jobs:
               | head -n1 || true)"
           fi
 
-          ####### TWITTER/X (solo tus tweets) con snscrape #######
-          TWEET_ID="$(snscrape --jsonl --max-results 1 "from:${USER_RX} exclude:retweets exclude:replies" \
-                      | jq -r '.id' | head -n1 2>/dev/null || true)"
+          ##### TWITTER / X (solo tus tweets)
 
-          if [ -n "${TWEET_ID:-}" ]; then
-            TWEET="https://twitter.com/${USER_RX}/status/${TWEET_ID}"
-          else
-            # Fallback scrape (x.com/twitter.com) SOLO del usuario
-            RAW_X="$(curl -sSL "https://r.jina.ai/http://x.com/${USER_RX}" 2>/dev/null || true)"
-            RAW_TW="$(curl -sSL "https://r.jina.ai/http://twitter.com/${USER_RX}" 2>/dev/null || true)"
-            RAW_ALL="$(printf '%s\n%s' "$RAW_X" "$RAW_TW")"
+          # 1) preferido: twitter-search con query
+          TWEET_URL="$(snscrape --jsonl --max-results 1 twitter-search \
+                        "from:${USER_RX} exclude:retweets exclude:replies" \
+                        | jq -r '.url' | head -n1 2>/dev/null || true)"
 
-            ALL_SELF="$(printf '%s' "$RAW_ALL" \
-              | grep -oEi "https?://(x\.com|twitter\.com)/${USER_RX}/status/[0-9]+" \
-              | sed -E 's#^https?://x\.com/#https://twitter.com/#I' \
-              | sort -u)"
-
-            TWEET="$(echo "$ALL_SELF" | sed -n '1p' || true)"
+          # 2) fallback: timeline del usuario, filtrando RTs y replies
+          if [ -z "${TWEET_URL:-}" ]; then
+            TWEET_URL="$(snscrape --jsonl --max-results 20 twitter-user "${USER_RX}" \
+                          | jq -r 'select(.retweetedTweet==null and (.inReplyToTweetId|not)) | .url' \
+                          | head -n1 2>/dev/null || true)"
           fi
 
+          # Normaliza dominio x.com -> twitter.com
+          if [ -n "${TWEET_URL:-}" ]; then
+            TWEET="${TWEET_URL//https:\/\/x.com/https:\/\/twitter.com}"
+          else
+            TWEET=""
+          fi
+
+          # Salida y guardado en JSON
           echo "TIKTOK: ${TIKTOK:-<vacío>}"
           echo "TWEET : ${TWEET:-<vacío>}"
 
-          # Genera JSON sí o sí (aunque alguno venga vacío)
           TIKTOK_SAFE=${TIKTOK//\"/\\\"}
           TWEET_SAFE=${TWEET//\"/\\\"}
           printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
