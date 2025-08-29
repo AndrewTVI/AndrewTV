@@ -132,10 +132,19 @@ footer{padding:18px 0 8px;text-align:center;color:var(--muted);font-size:12px}
   --accent:#2bdab5;
 }
 
-/* ===== Panel transitions (ligeras) ===== */
-.panel{opacity:0;transform:translateY(6px);transition:opacity .28s ease, transform .28s ease}
-.panel.active{opacity:1;transform:none}
-@media (prefers-reduced-motion: reduce){.panel,.tab{transition:none}}
+/* ===== Panel transitions (consistentes) ===== */
+.panel{
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .28s ease, transform .28s ease;
+  will-change: opacity, transform;
+}
+.panel.show{ opacity:1; transform:none; }
+.panel.hide{ opacity:0; transform:translateY(8px); }
+
+@media (prefers-reduced-motion: reduce){
+  .panel{ transition:none; }
+}
 </style>
 </head>
 <body class="theme-links">
@@ -159,7 +168,7 @@ footer{padding:18px 0 8px;text-align:center;color:var(--muted);font-size:12px}
   </nav>
 
   <!-- LINKS -->
-  <section id="panel-links" class="panel active" role="tabpanel" aria-labelledby="tab-links">
+  <section id="panel-links" class="panel show" role="tabpanel" aria-labelledby="tab-links">
     <div class="list">
       <a class="item" href="https://www.twitch.tv/andrewtvi" target="_blank" rel="noopener">
         <span class="icon"><img src="icons/twitch.webp" alt="Twitch"></span><span class="label">Directos</span>
@@ -189,7 +198,7 @@ footer{padding:18px 0 8px;text-align:center;color:var(--muted);font-size:12px}
   </section>
 
   <!-- POSTS -->
-  <section id="panel-posts" class="panel" role="tabpanel" aria-labelledby="tab-posts" hidden>
+  <section id="panel-posts" class="panel hide" role="tabpanel" aria-labelledby="tab-posts" hidden>
     <div class="grid">
       <!-- Instagram -->
       <article class="card"><h3>Instagram</h3>
@@ -217,7 +226,7 @@ footer{padding:18px 0 8px;text-align:center;color:var(--muted);font-size:12px}
   </section>
 
   <!-- ATVICRAFT -->
-  <section id="panel-atvi" class="panel" role="tabpanel" aria-labelledby="tab-atvi" hidden>
+  <section id="panel-atvi" class="panel hide" role="tabpanel" aria-labelledby="tab-atvi" hidden>
     <div class="list">
       <a class="item" href="https://discord.com/invite/8rrXvbES29" target="_blank" rel="noopener" style="box-shadow:0 0 0 1px rgba(43,218,181,.5),0 10px 24px rgba(43,218,181,.25) inset;">
         <span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">Únete al Discord</span>
@@ -247,8 +256,8 @@ footer{padding:18px 0 8px;text-align:center;color:var(--muted);font-size:12px}
 ======================= */
 const covers = {
   links: 'cover.webp',
-  posts: 'cover-posts.webp',   // <- pon tu imagen (o deja igual si no tienes)
-  atvi : 'cover-atvi.webp'     // <- pon tu imagen
+  posts: 'cover.webp',      // <- usa el mismo que links (antes: cover-posts.webp)
+  atvi : 'cover-atvi.webp'  // <- el de ATVICRAFT se mantiene único
 };
 const avatars = {
   links: 'avatar.webp',
@@ -261,32 +270,36 @@ const avatars = {
 ======================= */
 (() => {
   const c = document.getElementById('stars');
-  const ctx = c.getContext('2d');
+  const ctx = c.getContext('2d', { alpha:true });
   let w,h,stars=[], lastT=0;
 
-  const perf = { fps: 60 };
-  let baseCount = 140; // desktop
-  if (matchMedia("(max-width: 720px)").matches) baseCount = 90;
+  const isFF = navigator.userAgent.toLowerCase().includes('firefox');
+  // Menos base en Firefox y móvil
+  let baseCount = isFF ? 70 : 90;
+  if (matchMedia("(max-width: 720px)").matches) baseCount = isFF ? 50 : 60;
 
   function resize(){
     w = c.width  = innerWidth;
     h = c.height = innerHeight;
-    const count = Math.min(baseCount, Math.floor(w*h/7200)); // clamp
+    // Menor densidad por área (más suave que antes)
+    const byArea = Math.floor(w*h/14000);
+    const count = Math.min(baseCount, byArea);
     stars = Array.from({length:count}, () => ({
       x: Math.random()*w,
       y: Math.random()*h,
-      r: Math.random()*1.1 + .45,
-      s: Math.random()*0.55 + 0.25,
-      a: Math.random()*0.4 + 0.55
+      r: Math.random()*1.0 + .4,
+      s: Math.random()*0.45 + 0.18,
+      a: Math.random()*0.35 + 0.55
     }));
   }
   addEventListener('resize', resize, {passive:true});
   resize();
 
+  let skip = isFF ? 1 : 0; // en Firefox renderizamos 1 de cada 2 frames
   function tick(t){
     const dt = t - lastT; lastT = t || 0;
-    perf.fps = perf.fps*0.9 + (dt>0? 1000/dt : 60)*0.1;
-    if (perf.fps < 45 && stars.length > 60) stars.splice(0, 3); // baja carga
+    if (skip) { skip = 0; return requestAnimationFrame(tick); }
+    skip = isFF ? 1 : 0;
 
     ctx.clearRect(0,0,w,h);
     ctx.fillStyle = '#fff';
@@ -321,47 +334,80 @@ const handle    = document.getElementById('handleText');
 const titleName = document.getElementById('titleName');
 
 function setTheme(which){
-  body.classList.remove('theme-links','theme-posts','theme-atvi');
-  if(which==='posts') body.classList.add('theme-posts');
-  else if(which==='atvi') body.classList.add('theme-atvi');
-  else body.classList.add('theme-links');
+  document.body.classList.remove('theme-links','theme-posts','theme-atvi');
+  if(which==='posts') document.body.classList.add('theme-posts');
+  else if(which==='atvi') document.body.classList.add('theme-atvi');
+  else document.body.classList.add('theme-links');
 }
+
 function swapAssets(which){
-  coverImg.src  = covers[which]  || covers.links;
-  avatarImg.src = avatars[which] || avatars.links;
-  // Título/handle por sección
+  const newCover  = covers[which]  || covers.links;
+  const newAvatar = avatars[which] || avatars.links;
+
+  // Evita resetear el src si no cambió (previene parpadeos)
+  if (coverImg.dataset.src !== newCover) {
+    coverImg.dataset.src = newCover;
+    coverImg.src = newCover;
+  }
+  if (avatarImg.dataset.src !== newAvatar) {
+    avatarImg.dataset.src = newAvatar;
+    avatarImg.src = newAvatar;
+  }
+
+  // Fallback si el cover falla: vuelve al de links
+  coverImg.onerror = () => {
+    if (coverImg.src.indexOf(covers.links) === -1) coverImg.src = covers.links;
+  };
+
+  // Textos por sección
   if(which==='links'){ titleName.textContent='AndrewTVI'; handle.textContent='Hola'; }
   if(which==='posts'){ titleName.textContent='AndrewTVI'; handle.textContent='Publicaciones'; }
   if(which==='atvi'){  titleName.textContent='AndrewTVI'; handle.textContent='Servidor de Minecraft'; }
 }
+
 function reloadElfsight(){
-  // Rehidrata widgets cuando un panel que estaba hidden ahora es visible
   if (window.Eapps && typeof Eapps.reload === 'function') {
-    try { Eapps.reload(); } catch(e){}
+    try { Eapps.reload(); } catch(_) {}
   } else {
-    // fallback: forzar un resize
-    setTimeout(()=>window.dispatchEvent(new Event('resize')), 50);
+    setTimeout(()=>window.dispatchEvent(new Event('resize')), 60);
   }
 }
+
+// Animación consistente en cualquier orden
+let current = 'links';  // panel inicial
 function showPanel(which){
+  if (which === current) return;
+
+  // Tabs
   [btnLinks, btnPosts, btnAtvi].forEach(b=>b.setAttribute('aria-selected','false'));
   ({links:btnLinks, posts:btnPosts, atvi:btnAtvi}[which]).setAttribute('aria-selected','true');
 
+  // Tema + assets
   setTheme(which);
   swapAssets(which);
 
-  for(const k of Object.keys(panels)){
-    const p = panels[k];
-    if(k===which){
-      p.hidden = false; void p.offsetWidth; p.classList.add('active');
-    }else{
-      p.classList.remove('active');
-      setTimeout(()=>{ p.hidden = true; }, 220);
-    }
-  }
-  if(which==='posts' || which==='atvi') setTimeout(reloadElfsight, 160);
+  // Panels
+  const from = panels[current];
+  const to   = panels[which];
+
+  // Preparar el destino y activar con rAF para asegurar transición
+  to.hidden = false;
+  to.classList.remove('hide','show');
+  requestAnimationFrame(() => to.classList.add('show'));
+
+  // Animar salida
+  from.classList.remove('show');
+  from.classList.add('hide');
+  setTimeout(()=>{ from.hidden = true; }, 240);
+
+  current = which;
+
+  // Rehidratar widgets cuando el panel tiene embeds
+  if (which === 'posts' || which === 'atvi') setTimeout(reloadElfsight, 160);
+
   scrollTo({top:0,behavior:'smooth'});
 }
+
 btnLinks.onclick = ()=>showPanel('links');
 btnPosts.onclick = ()=>showPanel('posts');
 btnAtvi.onclick  = ()=>showPanel('atvi');
