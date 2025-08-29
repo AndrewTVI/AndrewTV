@@ -2,8 +2,11 @@ name: Update latest social posts
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # corre cada 30 minutos
-  workflow_dispatch: {}       # permite ejecutarlo manualmente
+    - cron: '*/30 * * * *'   # cada 30 minutos
+  workflow_dispatch: {}       # permitir ejecución manual
+
+permissions:
+  contents: write   # <-- PERMISO PARA HACER COMMIT
 
 jobs:
   build:
@@ -12,27 +15,58 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest TikTok & Tweet
+      - name: Fetch latest TikTok & Tweet (with fallbacks)
         run: |
+          set -e
           mkdir -p data
-          # RSS públicos
-          curl -s "https://rsshub.app/tiktok/user/andrewtvi" > /tmp/tt.xml || true
-          curl -s "https://nitter.net/iandres_soto/rss" > /tmp/tw.xml || true
 
+          echo "== Descargando RSS principales =="
+          curl -fsSL "https://rsshub.app/tiktok/user/andrewtvi" -o /tmp/tt.xml || true
+          curl -fsSL "https://nitter.net/iandres_soto/rss"    -o /tmp/tw.xml || true
+
+          echo "== Instalando utilidades =="
           sudo apt-get update -y
-          sudo apt-get install -y libxml2-utils
+          sudo apt-get install -y libxml2-utils jq
 
-          # Primer <item><link> de cada feed
-          TIKTOK=$(xmllint --xpath 'string((//item/link)[1])' /tmp/tt.xml 2>/dev/null || echo "")
-          TWEET_NITTER=$(xmllint --xpath 'string((//item/link)[1])' /tmp/tw.xml 2>/dev/null || echo "")
-          TWEET=${TWEET_NITTER/https:\/\/nitter.net\//https:\/\/twitter.com/}
+          echo "== Parseo XML principal =="
+          TIKTOK="$(xmllint --xpath 'string((//item/link)[1])' /tmp/tt.xml 2>/dev/null || echo "")"
+          TWEET_NITTER="$(xmllint --xpath 'string((//item/link)[1])' /tmp/tw.xml 2>/dev/null || echo "")"
+
+          # Fallbacks si están vacíos (usa rss2json para convertir a JSON y toma items[0].link)
+          if [ -z "$TIKTOK" ]; then
+            echo "TIKTOK vacío, probando fallback rss2json..."
+            curl -fsSL "https://api.rss2json.com/v1/api.json?rss_url=$(python3 - <<'PY'
+import urllib.parse
+print(urllib.parse.quote('https://rsshub.app/tiktok/user/andrewtvi'))
+PY
+)" -o /tmp/tt.json || true
+            TIKTOK="$(jq -r '.items[0].link // empty' /tmp/tt.json 2>/dev/null || echo "")"
+          fi
+
+          if [ -z "$TWEET_NITTER" ]; then
+            echo "TWEET vacío, probando fallback rss2json..."
+            curl -fsSL "https://api.rss2json.com/v1/api.json?rss_url=$(python3 - <<'PY'
+import urllib.parse
+print(urllib.parse.quote('https://nitter.net/iandres_soto/rss'))
+PY
+)" -o /tmp/tw.json || true
+            TWEET_NITTER="$(jq -r '.items[0].link // empty' /tmp/tw.json 2>/dev/null || echo "")"
+          fi
+
+          # Convertir nitter -> twitter
+          TWEET="${TWEET_NITTER/https:\/\/nitter.net\//https:\/\/twitter.com/}"
+
+          echo "== RESULTADOS =="
+          echo "TIKTOK: $TIKTOK"
+          echo "TWEET : $TWEET"
 
           # Escapar comillas por seguridad simple
           TIKTOK_SAFE=$(printf '%s' "$TIKTOK" | sed 's/"/\\"/g')
           TWEET_SAFE=$(printf '%s' "$TWEET" | sed 's/"/\\"/g')
 
           printf '{ "tiktok": "%s", "tweet": "%s" }\n' "$TIKTOK_SAFE" "$TWEET_SAFE" > data/latest.json
-          echo "latest.json:"
+
+          echo "== data/latest.json generado =="
           cat data/latest.json
 
       - name: Commit & push if changed
