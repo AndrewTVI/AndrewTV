@@ -229,13 +229,13 @@ footer{padding:18px 0 8px;text-align:center;color:var(--muted);font-size:12px}
   <section id="panel-atvi" class="panel hide" role="tabpanel" aria-labelledby="tab-atvi" hidden>
     <div class="list">
       <a class="item" href="https://discord.com/invite/8rrXvbES29" target="_blank" rel="noopener" style="box-shadow:0 0 0 1px rgba(43,218,181,.5),0 10px 24px rgba(43,218,181,.25) inset;">
-        <span class="icon"><img src="icons/discord.webp" alt="Discord"></span><span class="label">Únete al Discord</span>
+        <span class="icon"><img src="icons/discord-atvi.webp" alt="Discord ATVICRAFT"></span><span class="label">Únete al Discord</span>
       </a>
       <a class="item" href="https://www.instagram.com/atvicraft" target="_blank" rel="noopener" style="box-shadow:0 0 0 1px rgba(43,218,181,.5),0 10px 24px rgba(43,218,181,.25) inset;">
-        <span class="icon"><img src="icons/instagram.webp" alt="Instagram"></span><span class="label">Instagram</span>
+        <span class="icon"><img src="icons/instagram-atvi.webp" alt="Instagram ATVICRAFT"></span><span class="label">Instagram</span>
       </a>
       <a class="item" href="https://x.com/ATVICRAFT" target="_blank" rel="noopener" style="box-shadow:0 0 0 1px rgba(43,218,181,.5),0 10px 24px rgba(43,218,181,.25) inset;">
-        <span class="icon"><img src="icons/x.webp" alt="X"></span><span class="label">Twitter</span>
+        <span class="icon"><img src="icons/x-atvi.webp" alt="X ATVICRAFT"></span><span class="label">Twitter</span>
       </a>
     </div>
 
@@ -266,52 +266,93 @@ const avatars = {
 };
 
 /* =======================
-   Starfield adaptativo
+   Starfield ULTRA optimizado
 ======================= */
 (() => {
   const c = document.getElementById('stars');
-  const ctx = c.getContext('2d', { alpha:true });
-  let w,h,stars=[], lastT=0;
-
+  if (!c) return;
+  
+  const ctx = c.getContext('2d', { alpha: true });
+  let w, h, stars = [], lastT = 0;
+  let animationId = null;
+  
+  // Detectar Firefox y dispositivos móviles para optimizar
   const isFF = navigator.userAgent.toLowerCase().includes('firefox');
-  // Menos base en Firefox y móvil
-  let baseCount = isFF ? 70 : 90;
-  if (matchMedia("(max-width: 720px)").matches) baseCount = isFF ? 50 : 60;
+  const isMobile = matchMedia("(max-width: 720px)").matches;
+  
+  // Configuración optimizada para diferentes dispositivos
+  let baseCount = 60; // Base reducida para todos
+  if (isFF) baseCount = 40; // Firefox necesita aún menos
+  if (isMobile) baseCount = 30; // Móviles con menos capacidad
 
   function resize(){
-    w = c.width  = innerWidth;
+    w = c.width = innerWidth;
     h = c.height = innerHeight;
-    // Menor densidad por área (más suave que antes)
-    const byArea = Math.floor(w*h/14000);
-    const count = Math.min(baseCount, byArea);
-    stars = Array.from({length:count}, () => ({
-      x: Math.random()*w,
-      y: Math.random()*h,
-      r: Math.random()*1.0 + .4,
-      s: Math.random()*0.45 + 0.18,
-      a: Math.random()*0.35 + 0.55
+    
+    const count = Math.min(baseCount, Math.floor(w * h / 18000));
+    stars = Array.from({length: count}, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 0.8 + 0.3,  // Estrellas más pequeñas
+      s: Math.random() * 0.3 + 0.12, // Movimiento más lento
+      a: Math.random() * 0.3 + 0.5   // Menos opacidad
     }));
   }
-  addEventListener('resize', resize, {passive:true});
+  
+  // Usar un resize pasivo y debounced
+  let resizeTimeout;
+  function debouncedResize() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(resize, 100);
+  }
+  addEventListener('resize', debouncedResize, { passive: true });
   resize();
 
-  let skip = isFF ? 1 : 0; // en Firefox renderizamos 1 de cada 2 frames
-  function tick(t){
-    const dt = t - lastT; lastT = t || 0;
-    if (skip) { skip = 0; return requestAnimationFrame(tick); }
-    skip = isFF ? 1 : 0;
-
-    ctx.clearRect(0,0,w,h);
-    ctx.fillStyle = '#fff';
-    for(const s of stars){
-      ctx.globalAlpha = s.a;
-      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
-      s.y -= s.s; if(s.y < -2) s.y = h+2;
+  // Renderizado optimizado con frame skipping
+  let frameCount = 0;
+  function tick(t) {
+    if (!lastT) lastT = t;
+    const dt = t - lastT;
+    
+    // Saltar frames en dispositivos lentos o Firefox
+    const skipFrames = isFF || isMobile ? 2 : 1;
+    if (frameCount % skipFrames !== 0) {
+      frameCount++;
+      animationId = requestAnimationFrame(tick);
+      return;
     }
+    
+    lastT = t;
+    frameCount++;
+    
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#fff';
+    
+    for(const s of stars) {
+      ctx.globalAlpha = s.a;
+      ctx.beginPath(); 
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); 
+      ctx.fill();
+      
+      s.y -= s.s; 
+      if(s.y < -4) s.y = h + 4;
+    }
+    
     ctx.globalAlpha = 1;
-    requestAnimationFrame(tick);
+    animationId = requestAnimationFrame(tick);
   }
-  requestAnimationFrame(tick);
+  
+  // Iniciar animación solo si es visible
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      if (!animationId) animationId = requestAnimationFrame(tick);
+    } else {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+  }, { threshold: 0.1 });
+  
+  observer.observe(c);
 })();
 
 /* =======================
@@ -359,10 +400,19 @@ function swapAssets(which){
     if (coverImg.src.indexOf(covers.links) === -1) coverImg.src = covers.links;
   };
 
-  // Textos por sección
-  if(which==='links'){ titleName.textContent='AndrewTVI'; handle.textContent='Hola'; }
-  if(which==='posts'){ titleName.textContent='AndrewTVI'; handle.textContent='Publicaciones'; }
-  if(which==='atvi'){  titleName.textContent='AndrewTVI'; handle.textContent='Servidor de Minecraft'; }
+  // Textos por sección - ATVICRAFT tiene nombre diferente
+  if(which==='links'){ 
+    titleName.textContent='AndrewTVI'; 
+    handle.textContent='Hola'; 
+  }
+  if(which==='posts'){ 
+    titleName.textContent='AndrewTVI'; 
+    handle.textContent='Publicaciones'; 
+  }
+  if(which==='atvi'){  
+    titleName.textContent='ATVICRAFT';  // Cambiado a ATVICRAFT
+    handle.textContent='Servidor de Minecraft'; 
+  }
 }
 
 function reloadElfsight(){
